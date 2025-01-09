@@ -5,7 +5,7 @@ import time  # For simulating typing animation
 
 st.set_page_config(
     page_title="Anka-AI, artificial inteligence for math",
-    page_icon=r"Anka.png"
+    page_icon=r"Anka (1).png"
 )
 
 st.markdown(
@@ -33,7 +33,7 @@ st.text(" ")
 st.text(" ")
 
 USER_AVATAR = "👤"
-BOT_AVATAR = r"Anka.png"
+BOT_AVATAR = r"Anka (1).png"
 client = OpenAI(api_key='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')
 
 with shelve.open("chat_history") as db:
