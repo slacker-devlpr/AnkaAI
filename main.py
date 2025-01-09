@@ -5,7 +5,7 @@ import time  # For simulating typing animation
 
 st.set_page_config(
     page_title="Anka-AI, artificial inteligence for math",
-    page_icon=r""
+    page_icon=r"Anka.png"
 )
 
 st.markdown(
@@ -23,7 +23,7 @@ st.markdown(
         text-align: center; /* Align to the center */
     }
     </style>
-    <div class="custom-title">Petra-AI</div>
+    <div class="custom-title">Anka-AI</div>
     """,
     unsafe_allow_html=True,
 )
@@ -33,7 +33,7 @@ st.text(" ")
 st.text(" ")
 
 USER_AVATAR = "👤"
-BOT_AVATAR = r"DALL·E 2024-12-23 15.00.31 - A professional teacher standing in a classroom, with curly dark hair and a warm, approachable demeanor. The teacher is wearing a smart, casual outfit,.webp"
+BOT_AVATAR = r"Anka.png"
 client = OpenAI(api_key='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')
 
 with shelve.open("chat_history") as db:
