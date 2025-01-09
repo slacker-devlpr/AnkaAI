@@ -34,7 +34,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='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')
 
 with shelve.open("chat_history") as db:
     if "messages" in db:
@@ -70,7 +70,7 @@ if "messages" not in st.session_state:
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
-        "content": "Hello! Welcome to **Petra-AI**. Please note that **Petra-AI** can make mistakes. **Petra-AI** is powered by **OpenAI**, ensuring that it provides comprehensive answers, but it's always a good idea to double-check."
+        "content": "Hello! Welcome to **Anka-AI** an artificial inteligence for math. "
     }
     st.toast("Petra-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
     st.toast("You are currently running Petra-AI 2.3.", icon="⚙️")
