@@ -83,7 +83,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Main chat interface
-if prompt := st.chat_input("How can I help?"):
+if prompt := st.chat_input("How can I help?"): 
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
