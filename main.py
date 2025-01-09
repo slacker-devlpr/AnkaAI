@@ -2,6 +2,8 @@ from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
+from markdown_it import MarkdownIt
+from markdown_it.extensions.math import math_plugin
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -34,7 +36,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='your_api_key_here')
 
 with shelve.open("chat_history") as db:
     if "messages" in db:
@@ -62,6 +64,14 @@ def type_response(content):
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
 
+# Markdown parser for LaTeX support
+md = MarkdownIt().use(math_plugin)
+
+# Render Markdown with LaTeX support
+def render_markdown_with_latex(content):
+    rendered_html = md.render(content)
+    st.markdown(rendered_html, unsafe_allow_html=True)
+
 # Load chat history if not already in session
 if "messages" not in st.session_state:
     st.session_state.messages = load_chat_history()
@@ -80,14 +90,7 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        if "$$" in message["content"]:
-            # Display block LaTeX
-            st.latex(message["content"].strip("$$"))
-        elif "$" in message["content"]:
-            # Display inline LaTeX within text
-            st.write(message["content"])
-        else:
-            st.markdown(message["content"])
+        render_markdown_with_latex(message["content"])
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -110,11 +113,5 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        if "$$" in response:
-            # Display block LaTeX
-            st.latex(response.strip("$$"))
-        elif "$" in response:
-            # Display inline LaTeX within text
-            st.write(response)
-        else:
-            type_response(response)
+        render_markdown_with_latex(response)
+
