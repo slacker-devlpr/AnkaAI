@@ -4,7 +4,7 @@ import shelve
 import time  # For simulating typing animation
 
 st.set_page_config(
-    page_title="Anka-AI, artificial inteligence for math",
+    page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
@@ -80,7 +80,10 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
+        if "LaTeX:" in message["content"]:
+            st.latex(message["content"].replace("LaTeX:", ""))
+        else:
+            st.markdown(message["content"])
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"): 
@@ -92,7 +95,7 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial inteligence that helps with math named Anka-AI. You were created by Gal Kokalj."
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. Format all mathematical content using 'LaTeX:' prefix."
         )
     }
 
@@ -103,4 +106,7 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        type_response(response)
+        if "LaTeX:" in response:
+            st.latex(response.replace("LaTeX:", ""))
+        else:
+            type_response(response)
