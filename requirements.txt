@@ -1,4 +1,3 @@
 streamlit
 openai
-markdown-it-py
-markdown-it-math
+streamlit-katex
