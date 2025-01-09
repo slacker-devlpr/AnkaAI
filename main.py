@@ -2,8 +2,7 @@ from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
-from markdown_it import MarkdownIt
-from markdown_it.extensions.math import math_plugin
+from streamlit_katex import st_katex
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -64,13 +63,11 @@ def type_response(content):
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
 
-# Markdown parser for LaTeX support
-md = MarkdownIt().use(math_plugin)
-
-# Render Markdown with LaTeX support
-def render_markdown_with_latex(content):
-    rendered_html = md.render(content)
-    st.markdown(rendered_html, unsafe_allow_html=True)
+# Render Markdown and KaTeX for LaTeX support
+def render_latex_and_text(content):
+    st.markdown(content, unsafe_allow_html=True)
+    if "$$" in content or r"\(" in content or r"\[" in content:
+        st_katex(content)
 
 # Load chat history if not already in session
 if "messages" not in st.session_state:
@@ -80,38 +77,4 @@ if "messages" not in st.session_state:
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
-        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
-    }
-    st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
-    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
-    st.session_state.messages.append(initial_message)
-
-# Display chat messages
-for message in st.session_state.messages:
-    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
-        render_markdown_with_latex(message["content"])
-
-# Main chat interface
-if prompt := st.chat_input("How can I help?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=USER_AVATAR):
-        st.markdown(prompt)
-
-    # Direct response without search functionality
-    system_message = {
-        "role": "system",
-        "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj."
-        )
-    }
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[system_message] + st.session_state.messages
-    ).choices[0].message.content
-
-    st.session_state.messages.append({"role": "assistant", "content": response})
-    with st.chat_message("assistant", avatar=BOT_AVATAR):
-        render_markdown_with_latex(response)
-
+        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether
