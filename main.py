@@ -72,8 +72,8 @@ if not st.session_state.messages:
         "role": "assistant",
         "content": "Hello! Welcome to **Anka-AI** an artificial inteligence for math. "
     }
-    st.toast("Petra-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
-    st.toast("You are currently running Petra-AI 2.3.", icon="⚙️")
+    st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
+    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
 # Display chat messages
@@ -92,7 +92,7 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are Petra-AI, a helpful chatbot. All people described are from Slovenia, so conjugate the names as they would be in Slovenia. Anka Katrasnik was a computer science teacher of Gal Kokalj in 6th and 7th grade in the school OŠ Koseze. She is very smart and intelligent. You are running version 2.3. You were designed by Gal Kokalj, also known as Slacker. Your job is to provide helpful and accurate responses."
+            "You are an artificial inteligence that helps with math named Anka-AI. You were created by Gal Kokalj."
         )
     }
 
