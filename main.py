@@ -70,7 +70,7 @@ if "messages" not in st.session_state:
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
-        "content": "Welcome to Anka-AI!"
+        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
     }
     st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
