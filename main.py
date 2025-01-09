@@ -34,7 +34,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='your_api_key_here')
 
 with shelve.open("chat_history") as db:
     if "messages" in db:
@@ -58,7 +58,7 @@ def type_response(content):
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "/")
+        message_placeholder.markdown(full_response + "▌")
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
 
@@ -80,13 +80,17 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        if "LaTeX:" in message["content"]:
-            st.latex(message["content"].replace("LaTeX:", ""))
+        if "$$" in message["content"]:
+            # Display block LaTeX
+            st.latex(message["content"].strip("$$"))
+        elif "$" in message["content"]:
+            # Display inline LaTeX within text
+            st.write(message["content"])
         else:
             st.markdown(message["content"])
 
 # Main chat interface
-if prompt := st.chat_input("How can I help?"): 
+if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
@@ -95,7 +99,7 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. Format all mathematical content using 'LaTeX:' prefix."
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj."
         )
     }
 
@@ -106,7 +110,11 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        if "LaTeX:" in response:
-            st.latex(response.replace("LaTeX:", ""))
+        if "$$" in response:
+            # Display block LaTeX
+            st.latex(response.strip("$$"))
+        elif "$" in response:
+            # Display inline LaTeX within text
+            st.write(response)
         else:
             type_response(response)
