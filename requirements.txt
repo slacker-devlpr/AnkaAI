@@ -1,3 +1,4 @@
 streamlit
 openai
-markdown_it
+markdown-it-py
+markdown-it-math
