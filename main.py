@@ -66,7 +66,7 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -75,7 +75,10 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message["content"])
+            if "image" in message:
+                st.markdown(f'<img src="data:image/png;base64,{message["image"]}" alt="Plot">', unsafe_allow_html=True)
+            else:
+                st.markdown(message["content"])
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -113,23 +116,23 @@ def generate_and_display_plot(function_string):
             code_to_execute = match.group(1)
         else:
             code_to_execute = plot_code_response
-            
+
         fig, ax = plt.subplots()
-        
+
         # Set background color to black
         fig.patch.set_facecolor('black')
         ax.set_facecolor('black')
-        
+
         # Set spines color to white
         ax.spines['bottom'].set_color('white')
         ax.spines['top'].set_color('white')
         ax.spines['right'].set_color('white')
         ax.spines['left'].set_color('white')
-        
+
         # Set axis tick colors to white
         ax.tick_params(axis='x', colors='white')
         ax.tick_params(axis='y', colors='white')
-        
+
         # Set axis label colors to white
         ax.xaxis.label.set_color('white')
         ax.yaxis.label.set_color('white')
@@ -138,27 +141,27 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-          if line.get_color() == 'C0':  # Check if default color
-            line.set_color('white')
+            if line.get_color() == 'C0':
+              line.set_color('white')
         
         # Set title color to white
         ax.title.set_color('white')
-        
+
         # Save the plot to a buffer
         buf = io.BytesIO()
         plt.savefig(buf, format="png", facecolor=fig.get_facecolor())
         buf.seek(0)
-        
+
         # Encode to base64 for display
         image_base64 = base64.b64encode(buf.read()).decode("utf-8")
         
-        # Display the plot in Streamlit
-        st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Plot">', unsafe_allow_html=True)
-        
+        plt.close()
+        return image_base64
+    
     except Exception as e:
-        st.error(f"Error generating plot: {e}")
+        st.error(f"Error generating plot: ")
+        return None
         
-    plt.close()
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -173,8 +176,13 @@ if prompt := st.chat_input("How can I help?"):
         function_string = prompt[5:].strip()
         st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: {function_string}")
-        generate_and_display_plot(function_string)
+           type_response(f"Generating a plot of function: {function_string}")
+        image_data = generate_and_display_plot(function_string)
+        if image_data:
+            st.session_state.messages.append({"role": "assistant", "image": image_data})
+        else:
+            st.session_state.messages.append({"role": "assistant", "content": "Plot could not be generated."})
+
 
     else:
         system_message = {
@@ -194,21 +202,28 @@ if prompt := st.chat_input("How can I help?"):
             model=st.session_state["openai_model"],
             messages=[system_message] + st.session_state.messages
         ).choices[0].message.content
-        
+
         # Check for plot command
         plot_match = re.search(r'%%(.*?)%%', response)
         if plot_match:
             function_string = plot_match.group(1)
-            
+
             # Remove %%formula%% from the response
             response = re.sub(r'%%.*?%%', '', response).strip()
             
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            with st.chat_message("assistant", avatar=BOT_AVATAR):
-                type_response(response)
+            image_data = generate_and_display_plot(function_string)
             
-            generate_and_display_plot(function_string)
+            if image_data:
+                st.session_state.messages.append({"role": "assistant", "content": response, "image": image_data})
+                with st.chat_message("assistant", avatar=BOT_AVATAR):
+                    type_response(response)
+                    st.markdown(f'<img src="data:image/png;base64,{image_data}" alt="Plot">', unsafe_allow_html=True)
+            else:
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                with st.chat_message("assistant", avatar=BOT_AVATAR):
+                     type_response(response)
+            
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-               type_response(response)
+                type_response(response)
