@@ -104,7 +104,7 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj."
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. Use $ around latex math text."
         )
     }
 
