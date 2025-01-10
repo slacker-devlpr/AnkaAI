@@ -7,7 +7,67 @@ st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
-st.latex("\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}")
+st.latex("\documentclass{article}
+\usepackage{amsmath}
+
+\begin{document}
+
+\title{Derivation of the Quadratic Formula}
+\author{Anka-AI}
+\date{\today}
+\maketitle
+
+The quadratic formula is used to find the solutions of a quadratic equation of the form:
+
+\[
+ax^2 + bx + c = 0
+\]
+
+where \(a \neq 0\). To derive the quadratic formula, we start by completing the square:
+
+1. Divide the entire equation by \(a\):
+
+\[
+x^2 + \frac{b}{a} x + \frac{c}{a} = 0
+\]
+
+2. Rearranging gives:
+
+\[
+x^2 + \frac{b}{a} x = -\frac{c}{a}
+\]
+
+3. Next, we complete the square on the left side:
+
+\[
+x^2 + \frac{b}{a} x + \left(\frac{b}{2a}\right)^2 = -\frac{c}{a} + \left(\frac{b}{2a}\right)^2
+\]
+
+4. This simplifies to:
+
+\[
+\left(x + \frac{b}{2a}\right)^2 = \frac{b^2 - 4ac}{4a^2}
+\]
+
+5. Taking the square root of both sides, we have:
+
+\[
+x + \frac{b}{2a} = \pm \frac{\sqrt{b^2 - 4ac}}{2a}
+\]
+
+6. Finally, isolating \(x\) gives us the quadratic formula:
+
+\[
+x = -\frac{b}{2a} \pm \frac{\sqrt{b^2 - 4ac}}{2a}
+\]
+
+Thus, the solutions for \(x\) are:
+
+\[
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+\]
+
+\end{document}")
 st.markdown(
     """
     <style>
