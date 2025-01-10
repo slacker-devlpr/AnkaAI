@@ -94,7 +94,7 @@ def generate_and_display_plot(function_string):
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
         Generate python code using matplotlib and numpy to plot the following mathematical function: `{function_string}`.
-        Use 1000 data points.
+        Use 1000 data points, x axis from -10 to 10.
         The plot should have a black background and for the axis white lines.
         The line should be blueish.
         Use a good ratio to make it look good.
