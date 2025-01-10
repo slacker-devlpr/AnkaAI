@@ -4,6 +4,7 @@ import time
 import re
 import markdown
 
+
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
@@ -40,9 +41,11 @@ client = OpenAI(api_key='sk-proj-rL2yIVC_Kx52YjFu_nspXEnLtx0tnBKwZ2xr-f-01mx7RUw
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-4o-mini"
 
+# Initialize chat history in session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
     full_response = ""
@@ -52,22 +55,26 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
+
+# Function to find and render LaTeX using st.markdown
 def render_latex(text):
-    parts = re.split(r'(\$\$[^\$]+\$\$)', text)
+    parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
-            rendered_parts.append(markdown.markdown(part))
+           rendered_parts.append(part)
     return "".join(rendered_parts)
 
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(render_latex(message["content"]), unsafe_allow_html=True)
+            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
 
+
+# Add initial hello message if first visit
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
@@ -77,8 +84,10 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
+# Display chat messages
 display_messages(st.session_state.messages)
 
+# Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
@@ -101,7 +110,6 @@ if prompt := st.chat_input("How can I help?"):
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
 
-    st.session_state.messages.append({"role": "assistant", "content": response}) # Store RAW response
-
+    st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
