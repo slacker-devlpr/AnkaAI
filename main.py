@@ -83,7 +83,7 @@ if not st.session_state.messages:
         "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"
     }
     st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
-    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
+    st.toast("You are currently running Anka-AI 1.5.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
 display_messages(st.session_state.messages)
