@@ -111,7 +111,7 @@ def generate_and_display_plot(function_string):
         else:
             code_to_execute = plot_code_response
         
-        fig, ax = plt.subplots()[[1](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcSlIT68mEkp_yb8Qg3n4gQo9jo11zWdpoF9frfivE6uiAITMqrKdH7bjy6eb_dJ1Uy1Lx-_uaZ7Ys7UHY0B1nZPjAh3bmDVzm8UsBjR-KHWhV2fiaCRJHS5sicO7B7DVtV-SsRUz8YKqQqU2XQCc1cTb9JZcpNuF_btBWJHdU8IGZVRqylsNW0iBWRB)][[2](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTGS2W5fBTVrSouQB8ToiEEHdbTWHZIlrJMSsmB8lAyBaWp1oyk4LaOm_6apn3ZOGERSIFdb_Ym6TnXuk6eoOv89DbdM-RtUr2OBbYhJMfAW7BxLEBok4G5jWm-CbUg04XRszmbZj00KM1pkOQR77CivRTumHQqzrcer8BPfud16xE=)][[3](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTbXt7TBQAFVlkM93UI-t8qCQLUHvTKHTplBhhUSxlxLZ8aRGAU1iiCq5A7LNmmdCBL4RGYGXtbu68vEYH68e21VhPzo5ED_OJ7yI0qsNHTymvlUGu-dKRj5vY5UNKzJ3-nUmHWtbE=)]
+        fig, ax = plt.subplots()[[1]('https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcSlIT68mEkp_yb8Qg3n4gQo9jo11zWdpoF9frfivE6uiAITMqrKdH7bjy6eb_dJ1Uy1Lx-_uaZ7Ys7UHY0B1nZPjAh3bmDVzm8UsBjR-KHWhV2fiaCRJHS5sicO7B7DVtV-SsRUz8YKqQqU2XQCc1cTb9JZcpNuF_btBWJHdU8IGZVRqylsNW0iBWRB)][[2](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTGS2W5fBTVrSouQB8ToiEEHdbTWHZIlrJMSsmB8lAyBaWp1oyk4LaOm_6apn3ZOGERSIFdb_Ym6TnXuk6eoOv89DbdM-RtUr2OBbYhJMfAW7BxLEBok4G5jWm-CbUg04XRszmbZj00KM1pkOQR77CivRTumHQqzrcer8BPfud16xE=)][[3](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTbXt7TBQAFVlkM93UI-t8qCQLUHvTKHTplBhhUSxlxLZ8aRGAU1iiCq5A7LNmmdCBL4RGYGXtbu68vEYH68e21VhPzo5ED_OJ7yI0qsNHTymvlUGu-dKRj5vY5UNKzJ3-nUmHWtbE=')]
         
         # Set background color to black
         fig.patch.set_facecolor('black')
