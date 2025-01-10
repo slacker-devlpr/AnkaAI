@@ -34,7 +34,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='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')
 
 with shelve.open("chat_history") as db:
     if "messages" in db:
