@@ -116,7 +116,7 @@ if prompt := st.chat_input("How can I help?"):
         model="gpt-4o-mini",
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
-
+    print(response)
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
          type_response(response)
