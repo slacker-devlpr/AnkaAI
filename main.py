@@ -105,7 +105,7 @@ if prompt := st.chat_input("How can I help?"):
             "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. "
             "When you respond with a mathematical formula, please enclose it in double dollar signs ($$). "
             "This will render the formula as LaTeX. For example, if you want to show the Pythagorean theorem "
-            "you would write: '$$c^2 = a^2 + b^2$$' or '$$(a)$$' "
+            "you would write: '$$c^2 = a^2 + b^2$$' or '$$(\sqrt{b^2 - 4ac})$$' "
             "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it. "
             "Make sure to put the correct latex code around the math equation"
         )
