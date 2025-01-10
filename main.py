@@ -1,3 +1,4 @@
+from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
