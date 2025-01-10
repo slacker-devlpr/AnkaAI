@@ -1,7 +1,8 @@
 from openai import OpenAI
 import streamlit as st
-import shelve
 import time
+from markdown_it import MarkdownIt
+from mdit_py_plugins.texmath import texmath_plugin
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -43,6 +44,9 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Initialize MarkdownIt with the texmath plugin
+md = MarkdownIt().use(texmath_plugin)
+
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
@@ -53,22 +57,16 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
-
-# Function to render LaTeX using st.latex
-def render_latex(text):
-    parts = text.split("$$")
-    for i, part in enumerate(parts):
-        if i % 2 == 1:
-            st.latex(part)
-        else:
-            st.markdown(part)
-
+# Function to render Markdown including LaTeX
+def render_markdown(text):
+    rendered_html = md.render(text)
+    st.markdown(rendered_html, unsafe_allow_html=True)
 
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            render_latex(message["content"])
+            render_markdown(message["content"])
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
