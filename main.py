@@ -2,6 +2,7 @@ from openai import OpenAI
 import streamlit as st
 import time
 import re
+import markdown
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -43,49 +44,33 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Initialize processed messages with latex
-if "processed_messages" not in st.session_state:
-    st.session_state.processed_messages = []
-
-
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "▌")  # Use a visual cursor
+        message_placeholder.markdown(full_response + "▌")
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
 
-# Function to find and render LaTeX using st.markdown and st.latex
+# Function to find and render LaTeX using st.markdown
 def render_latex(text):
     parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(st.latex(part[2:-2]))
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
-            rendered_parts.append(st.markdown(part))
-    return rendered_parts  # return all the markdown and latex outputs
-
+           rendered_parts.append(part)
+    return "".join(rendered_parts)
 
 def display_messages(messages):
-    for i, message in enumerate(messages):
-      avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-      with st.chat_message(message["role"], avatar=avatar):
-        if i < len(st.session_state.processed_messages):
-          # re-render messages already in chat
-          for rendered_part in st.session_state.processed_messages[i]:
-              rendered_part
-        else:
-          # if message is new, render all the parts
-          rendered_parts = render_latex(message["content"])
-          st.session_state.processed_messages.append(rendered_parts)
-          for rendered_part in rendered_parts:
-            rendered_part
-
+    for message in messages:
+        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+        with st.chat_message(message["role"], avatar=avatar):
+            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
 
 
 # Add initial hello message if first visit
@@ -123,7 +108,7 @@ if prompt := st.chat_input("How can I help?"):
         model=st.session_state["openai_model"],
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
-    
+
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
