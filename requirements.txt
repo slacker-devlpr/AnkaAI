@@ -1,3 +1,4 @@
 streamlit
 openai
-
+markdown-it-py
+mdit-py-plugins
