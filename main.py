@@ -58,9 +58,21 @@ def type_response(content):
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "/")
+        message_placeholder.markdown(full_response + "|")
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
+
+# Render content with LaTeX support
+def render_content(content):
+    if "$" in content:  # Check for LaTeX expressions
+        parts = content.split("$")
+        for i, part in enumerate(parts):
+            if i % 2 == 0:
+                st.markdown(part)  # Render normal text
+            else:
+                st.latex(part)  # Render LaTeX
+    else:
+        st.markdown(content)
 
 # Load chat history if not already in session
 if "messages" not in st.session_state:
@@ -80,10 +92,10 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
+        render_content(message["content"])
 
 # Main chat interface
-if prompt := st.chat_input("How can I help?"): 
+if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
@@ -103,5 +115,5 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        type_response(response)
+        render_content(response)
 
