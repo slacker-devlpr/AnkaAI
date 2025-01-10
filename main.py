@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
-
+st.latex("\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}")
 st.markdown(
     """
     <style>
