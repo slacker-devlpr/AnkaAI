@@ -96,9 +96,7 @@ if prompt := st.chat_input("How can I help?"):
             "When you respond with a mathematical formula, please enclose it in double dollar signs ($$). "
             "This will render the formula as LaTeX. For example, if you want to show the Pythagorean theorem "
             "you would write: '$$c^2 = a^2 + b^2$$' "
-            "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it. "
-            "Make sure to put the correct latex code around the math equation."
-            "Do not use brackets in anything from now on if you want to display anything latex(math for example) you surround the latex with $$"
+            "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it.Do not use brackets in anything from now on if you want to display anything latex(math for example) you surround the latex with $$ "
         )
     }
 
