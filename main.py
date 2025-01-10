@@ -2,7 +2,6 @@ from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
-from streamlit_katex import st_katex
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -35,7 +34,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='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')
 
 with shelve.open("chat_history") as db:
     if "messages" in db:
@@ -59,15 +58,9 @@ def type_response(content):
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response + "/")
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
-
-# Render Markdown and KaTeX for LaTeX support
-def render_latex_and_text(content):
-    st.markdown(content, unsafe_allow_html=True)
-    if "$$" in content or r"\(" in content or r"\[" in content:
-        st_katex(content)
 
 # Load chat history if not already in session
 if "messages" not in st.session_state:
@@ -77,4 +70,43 @@ if "messages" not in st.session_state:
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
-        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether
+        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
+    }
+    st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
+    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
+    st.session_state.messages.append(initial_message)
+
+# Display chat messages
+for message in st.session_state.messages:
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
+        if "LaTeX:" in message["content"]:
+            st.latex(message["content"].replace("LaTeX:", ""))
+        else:
+            st.markdown(message["content"])
+
+# Main chat interface
+if prompt := st.chat_input("How can I help?"): 
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar=USER_AVATAR):
+        st.markdown(prompt)
+
+    # Direct response without search functionality
+    system_message = {
+        "role": "system",
+        "content": (
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. Format all mathematical content using 'LaTeX:' prefix."
+        )
+    }
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[system_message] + st.session_state.messages
+    ).choices[0].message.content
+
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
+        if "LaTeX:" in response:
+            st.latex(response.replace("LaTeX:", ""))
+        else:
+            type_response(response)
