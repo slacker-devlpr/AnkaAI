@@ -4,11 +4,9 @@ import time
 import re
 import markdown
 import matplotlib.pyplot as plt
+import io
+import base64
 import numpy as np
-import tempfile
-import os
-import sympy
-from sympy import symbols, Eq
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -61,77 +59,56 @@ def type_response(content):
     message_placeholder.markdown(full_response)
 
 
+def create_graph(code):
+    try:
+        fig = plt.figure()
+        exec(code)
+        plt.grid(True)  # Add grid to the graph
+        plt.xlabel("x-axis") # Add x-axis label
+        plt.ylabel("y-axis")  #Add y-axis label
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        plt.close(fig)  # Close the figure after saving
+        return base64.b64encode(buf.read()).decode("utf-8")
+    except Exception as e:
+        return f"Error generating graph: {e}"
+
 # Function to find and render LaTeX using st.markdown
 def render_latex(text):
-    parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
+    parts = re.split(r'(\$\$[^\$]+\$\$)', text)
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
         else:
-            rendered_parts.append(part)
+           rendered_parts.append(part)
+
     return "".join(rendered_parts)
 
-
-def plot_function(plot_code):
-    """Generates a plot using matplotlib."""
-    try:
-        # Extract the equation from the plot code, this can be a function of one variable or an implicit function
-        equation = plot_code.split(":", 1)[1].strip()
-
-        # Attempt to parse for a single variable, if so treat it as f(x)
-        if "=" in equation:
-            x, y = symbols('x y')
-            eq_parts = equation.split("=")
-            if len(eq_parts) == 2:
-                left_side, right_side = eq_parts[0].strip(), eq_parts[1].strip()
-                eq = Eq(sympy.sympify(left_side), sympy.sympify(right_side))
-                #implicit function plot
-                p = sympy.plotting.plot_implicit(eq, (x, -10, 10), (y, -10, 10), show=False)
-                fig = p.save_data()
-            else:
-                return None
-        else:
-            # single function plot
-            x = np.linspace(-10, 10, 400)
-            y = sympy.sympify(equation, locals={'x':x})
-            fig, ax = plt.subplots()
-            ax.plot(x, y)
-            ax.set_xlabel("x")
-            ax.set_ylabel("y")
-            ax.grid(True)
-
-        
-        #save the figure
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
-            plt.savefig(tmp_file.name)
-            plt.close(fig) #close the plot
-            return tmp_file.name
-    except Exception as e:
-        st.error(f"Error plotting function: {e}")
-        return None
-
-def render_response(response):
-    """Handles both text, latex and plot rendering."""
-    plot_pattern = r'(\&\&plot:([^\&]+)\&\&)'
-    parts = re.split(plot_pattern, response)
+def render_code_blocks(text):
+    parts = re.split(r'(&& code &&.*?&& /code &&)', text, flags=re.DOTALL)
     rendered_parts = []
     for i, part in enumerate(parts):
-      if i % 3 == 1:
-        image_path = plot_function(part)
-        if image_path:
-          st.image(image_path)
-          os.unlink(image_path) #clean up the temp file
-      elif i % 3 == 0:
-        rendered_parts.append(render_latex(part))
-      
+        if part.startswith("&& code &&") and part.endswith("&& /code &&"):
+           code = part[len("&& code &&"):-len("&& /code &&")].strip()
+           image_data = create_graph(code)
+           if isinstance(image_data, str) and image_data.startswith("Error"):
+                rendered_parts.append(f"<p style='color:red;'>{image_data}</p>")  # display error message in red
+           else:
+               rendered_parts.append(f'<img src="data:image/png;base64,{image_data}" />')
+
+        else:
+          rendered_parts.append(render_latex(part))
+
     return "".join(rendered_parts)
 
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(render_response(message["content"]), unsafe_allow_html = True)
+            st.markdown(render_code_blocks(message["content"]), unsafe_allow_html=True)
 
 
 # Add initial hello message if first visit
@@ -161,9 +138,8 @@ if prompt := st.chat_input("How can I help?"):
             "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
             "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
             "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
+            "If you need to plot a graph of a function, you need to output the code for it in python inside the following format && code && code here && /code &&. For example && code && import matplotlib.pyplot as plt \nimport numpy as np\nx = np.linspace(-5,5,400)\ny= x**2\nplt.plot(x,y) && /code &&"
             "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
-            "If the user askes to plot a function in any form, generate a python code that does that function. Enclose the whole function plot code between &&plot: and &&, for example: &&plot:y=x^2+3x+5&&. For implicit functions, use sympys implicit plotter"
-            "Try to be as descriptive as possible."
         )
     }
 
@@ -174,4 +150,4 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        type_response(render_response(response))
+       type_response(response)
