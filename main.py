@@ -1,3 +1,7 @@
+Okay, I understand. The issue is that when a new prompt is submitted, the previous messages aren't re-processed to ensure LaTeX rendering persists. This is because the st.markdown call within display_messages is not automatically re-evaluated with new context.
+
+Here's the modified code with the fix:
+
 from openai import OpenAI
 import streamlit as st
 import time
@@ -62,9 +66,9 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")  # This is the only change here from the previous code
         else:
-           rendered_parts.append(part)
+            rendered_parts.append(part)
     return "".join(rendered_parts)
 
 def display_messages(messages):
@@ -84,8 +88,6 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
-# Display chat messages
-display_messages(st.session_state.messages)
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -111,5 +113,11 @@ if prompt := st.chat_input("How can I help?"):
     ).choices[0].message.content
 
     st.session_state.messages.append({"role": "assistant", "content": response})
+    
+    # Display all messages, including the new response
+    display_messages(st.session_state.messages)
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
+    
+# Always display all messages, ensuring re-rendering on each session state change
+display_messages(st.session_state.messages)
