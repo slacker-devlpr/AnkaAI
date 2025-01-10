@@ -43,6 +43,11 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Initialize processed messages with latex
+if "processed_messages" not in st.session_state:
+    st.session_state.processed_messages = []
+
+
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
@@ -54,20 +59,33 @@ def type_response(content):
     message_placeholder.markdown(full_response)
 
 
-# Function to find and render LaTeX using st.markdown
+# Function to find and render LaTeX using st.markdown and st.latex
 def render_latex(text):
     parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
+    rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            st.latex(part[2:-2])
+            rendered_parts.append(st.latex(part[2:-2]))
         else:
-            st.markdown(part)
+            rendered_parts.append(st.markdown(part))
+    return rendered_parts  # return all the markdown and latex outputs
+
 
 def display_messages(messages):
-    for message in messages:
-        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-        with st.chat_message(message["role"], avatar=avatar):
-            render_latex(message["content"])
+    for i, message in enumerate(messages):
+      avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+      with st.chat_message(message["role"], avatar=avatar):
+        if i < len(st.session_state.processed_messages):
+          # re-render messages already in chat
+          for rendered_part in st.session_state.processed_messages[i]:
+              rendered_part
+        else:
+          # if message is new, render all the parts
+          rendered_parts = render_latex(message["content"])
+          st.session_state.processed_messages.append(rendered_parts)
+          for rendered_part in rendered_parts:
+            rendered_part
+
 
 
 # Add initial hello message if first visit
