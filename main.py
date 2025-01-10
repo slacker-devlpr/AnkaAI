@@ -49,10 +49,6 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Initialize the image list in session state
-if "images" not in st.session_state:
-    st.session_state.images = []
-
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
@@ -74,17 +70,11 @@ def render_latex(text):
             rendered_parts.append(part)
     return "".join(rendered_parts)
 
-def display_messages(messages, images):
-    image_index = 0
+def display_messages(messages):
     for message in messages:
-      avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-      with st.chat_message(message["role"], avatar=avatar):
-        # Check if there's an image to display
-        if message.get("plot_image",False) == True and image_index < len(images):
-            st.markdown(f'<img src="data:image/png;base64,{images[image_index]}" alt="Plot">', unsafe_allow_html=True)
-            image_index+=1
-        else:
-            st.markdown(message["content"])
+        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+        with st.chat_message(message["role"], avatar=avatar):
+            st.markdown(render_latex(message["content"]), unsafe_allow_html = True)
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -96,14 +86,14 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
-display_messages(st.session_state.messages, st.session_state.images)
+display_messages(st.session_state.messages)
 
 # Function to generate and display plot
 def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function: ``.
+        Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
         Use 1000 data points, x axis from -10 to 10.
         The plot should have a black background and for the axis white lines.
         The line should be blueish.
@@ -119,12 +109,12 @@ def generate_and_display_plot(function_string):
         # First extract the code from the string
         match = re.search(r'```python\n(.*?)\n```', plot_code_response, re.DOTALL)
         if match:
-          code_to_execute = match.group(1)
+            code_to_execute = match.group(1)
         else:
-          code_to_execute = plot_code_response
-        
+            code_to_execute = plot_code_response
+            
         fig, ax = plt.subplots()
-      
+        
         # Set background color to black
         fig.patch.set_facecolor('black')
         ax.set_facecolor('black')
@@ -147,8 +137,8 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-          if line.get_color() == 'C0':  # Check if default color
-            line.set_color('white')
+            if line.get_color() == 'C0':  # Check if default color
+                line.set_color('white')
         
         # Set title color to white
         ax.title.set_color('white')
@@ -161,35 +151,30 @@ def generate_and_display_plot(function_string):
         # Encode to base64 for display
         image_base64 = base64.b64encode(buf.read()).decode("utf-8")
         
-        # Append to the image list in session state
-        st.session_state.images.append(image_base64)
-        
-        
-        return True
+        # Display the plot in Streamlit
+        st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Plot">', unsafe_allow_html=True)
         
     except Exception as e:
-        st.error(f"Error generating plot: ")
-        return False
-    finally:
-        plt.close()
+        st.error(f"Error generating plot: {e}")
+        
+    plt.close()
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
-    
-    plot_match = re.match(r"/plot\s+(.*)",prompt.lower())
-    if plot_match:
-        function_string = plot_match.group(1).strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: ``", "plot_image": True})
+
+    if prompt.strip().lower() == "/plot":
+        st.session_state.messages.append({"role":"assistant", "content": "Please enter the function to plot after the command `/plot` such as `/plot x^2`"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: ``")
-        if generate_and_display_plot(function_string):
-            
-             display_messages(st.session_state.messages, st.session_state.images)
-        else:
-             st.session_state.messages[-1]["content"] = "Could not generate plot." 
-             display_messages(st.session_state.messages, st.session_state.images)
+            type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
+    elif prompt.lower().startswith("/plot"):
+        function_string = prompt[5:].strip()
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: $$y = {function_string}$$"})
+        with st.chat_message("assistant", avatar=BOT_AVATAR):
+            type_response(f"Generating a plot of function: $$y = {function_string}$$")
+        generate_and_display_plot(function_string)
+
     else:
         system_message = {
             "role": "system",
@@ -199,11 +184,10 @@ if prompt := st.chat_input("How can I help?"):
                 "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
                 "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
                 "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-                "If the user asks you to plot something, respond with /plot 'function' and make sure to put all the math symbols into latex format."
                 "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
             )
         }
-
+       
         response = client.chat.completions.create(
             model=st.session_state["openai_model"],
             messages=[system_message] + st.session_state.messages
@@ -212,4 +196,3 @@ if prompt := st.chat_input("How can I help?"):
         st.session_state.messages.append({"role": "assistant", "content": response})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
             type_response(response)
-        display_messages(st.session_state.messages, st.session_state.images)
