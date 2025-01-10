@@ -89,6 +89,7 @@ display_messages(st.session_state.messages)
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
+    display_messages(st.session_state.messages)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
@@ -113,3 +114,4 @@ if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
+        display_messages(st.session_state.messages)
