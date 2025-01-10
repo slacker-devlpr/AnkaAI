@@ -3,6 +3,8 @@ import streamlit as st
 import time
 from markdown_it import MarkdownIt
 from mdit_py_plugins.texmath import texmath_plugin
+from mdit_py_plugins.amsmath import amsmath_plugin
+
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -44,9 +46,6 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Initialize MarkdownIt with the texmath plugin
-md = MarkdownIt().use(texmath_plugin)
-
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
@@ -57,26 +56,28 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
-# Function to render Markdown including LaTeX
+# Markdown It setup
+md = MarkdownIt().use(texmath_plugin).use(amsmath_plugin)
+
 def render_markdown(text):
-    rendered_html = md.render(text)
-    st.markdown(rendered_html, unsafe_allow_html=True)
+    """Renders text with LaTeX using markdown-it-py."""
+    return md.render(text)
 
 def display_messages(messages):
-    for message in messages:
-        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-        with st.chat_message(message["role"], avatar=avatar):
-            render_markdown(message["content"])
+  for message in messages:
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
+        st.markdown(render_markdown(message["content"]), unsafe_allow_html=True)
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
-    initial_message = {
-        "role": "assistant",
-        "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
-    }
-    st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
-    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
-    st.session_state.messages.append(initial_message)
+  initial_message = {
+      "role": "assistant",
+      "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
+  }
+  st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
+  st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
+  st.session_state.messages.append(initial_message)
 
 # Display chat messages
 display_messages(st.session_state.messages)
@@ -94,7 +95,7 @@ if prompt := st.chat_input("How can I help?"):
             "When you respond with a mathematical formula, please enclose it in double dollar signs ($$). "
             "This will render the formula as LaTeX. For example, if you want to show the Pythagorean theorem "
             "you would write: '$$c^2 = a^2 + b^2$$' or the symbol $$a$$ means ... "
-            
+
         )
     }
 
@@ -102,7 +103,7 @@ if prompt := st.chat_input("How can I help?"):
         model="gpt-4o-mini",
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
-    
+
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
