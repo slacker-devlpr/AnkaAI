@@ -71,7 +71,7 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(markdown.markdown(render_latex(message["response"])), unsafe_allow_html=True)
+            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
 
 
 # Add initial hello message if first visit
