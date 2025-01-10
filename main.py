@@ -35,10 +35,10 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='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') #Replace with your actual key
+client = OpenAI(api_key='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')
 
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4o-mini" # Or your preferred model
+    st.session_state["openai_model"] = "gpt-4o-mini"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -59,20 +59,19 @@ def render_latex(text):
         if part.startswith("$$") and part.endswith("$$"):
             rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
         else:
-            rendered_parts.append(part)
+            rendered_parts.append(markdown.markdown(part))
     return "".join(rendered_parts)
 
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message.get("rendered_content", message["content"]), unsafe_allow_html=True)
+            st.markdown(render_latex(message["content"]), unsafe_allow_html=True)
 
 if not st.session_state.messages:
     initial_message = {
         "role": "assistant",
-        "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?",
-        "rendered_content": markdown.markdown(render_latex("Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"))
+        "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"
     }
     st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
@@ -81,7 +80,7 @@ if not st.session_state.messages:
 display_messages(st.session_state.messages)
 
 if prompt := st.chat_input("How can I help?"):
-    st.session_state.messages.append({"role": "user", "content": prompt, "rendered_content": prompt}) #added rendered content for user prompt
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
 
@@ -102,12 +101,7 @@ if prompt := st.chat_input("How can I help?"):
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
 
-    rendered_response = markdown.markdown(render_latex(response))
+    st.session_state.messages.append({"role": "assistant", "content": response}) # Store RAW response
 
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": response,
-        "rendered_content": rendered_response
-    })
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        type_response(rendered_response) # changed this to type the rendered response
+        type_response(response)
