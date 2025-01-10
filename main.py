@@ -1,4 +1,3 @@
-from openai import OpenAI
 import streamlit as st
 import time
 import re
@@ -7,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-
+from openai import OpenAI
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -95,7 +94,9 @@ def generate_and_display_plot(function_string):
         plot_code_prompt = f"""
         Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
         The x-axis should range from -10 to 10, use 1000 data points.
-        Only generate the code block no additional explanation.
+        The plot should have a black background.
+        The axes should be traditional with arrows at the end of each axis.
+        Only generate the code block, no additional explanation.
         """
         plot_code_response = client.chat.completions.create(
             model=st.session_state["openai_model"],
@@ -110,12 +111,33 @@ def generate_and_display_plot(function_string):
         else:
             code_to_execute = plot_code_response
         
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots()[[1](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcSlIT68mEkp_yb8Qg3n4gQo9jo11zWdpoF9frfivE6uiAITMqrKdH7bjy6eb_dJ1Uy1Lx-_uaZ7Ys7UHY0B1nZPjAh3bmDVzm8UsBjR-KHWhV2fiaCRJHS5sicO7B7DVtV-SsRUz8YKqQqU2XQCc1cTb9JZcpNuF_btBWJHdU8IGZVRqylsNW0iBWRB)][[2](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTGS2W5fBTVrSouQB8ToiEEHdbTWHZIlrJMSsmB8lAyBaWp1oyk4LaOm_6apn3ZOGERSIFdb_Ym6TnXuk6eoOv89DbdM-RtUr2OBbYhJMfAW7BxLEBok4G5jWm-CbUg04XRszmbZj00KM1pkOQR77CivRTumHQqzrcer8BPfud16xE=)][[3](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AYygrcTbXt7TBQAFVlkM93UI-t8qCQLUHvTKHTplBhhUSxlxLZ8aRGAU1iiCq5A7LNmmdCBL4RGYGXtbu68vEYH68e21VhPzo5ED_OJ7yI0qsNHTymvlUGu-dKRj5vY5UNKzJ3-nUmHWtbE=)]
+        
+        # Set background color to black
+        fig.patch.set_facecolor('black')
+        ax.set_facecolor('black')
+        
+        # Set spines to be in the middle and make them black
+        ax.spines['left'].set_position('zero')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['right'].set_color('none')
+        ax.spines['top'].set_color('none')
+        
+        # Make ticks black
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        
+        # Add arrows to axes
+        ax.plot((1), (0), ls="", marker=">", ms=10, color="white",
+                transform=ax.get_yaxis_transform(), clip_on=False)
+        ax.plot((0), (1), ls="", marker="^", ms=10, color="white",
+                transform=ax.get_xaxis_transform(), clip_on=False)
+        
         exec(code_to_execute, globals(), locals())
         
         # Save the plot to a buffer
         buf = io.BytesIO()
-        plt.savefig(buf, format="png")
+        plt.savefig(buf, format="png", facecolor=fig.get_facecolor())
         buf.seek(0)
         
         # Encode to base64 for display
@@ -128,6 +150,7 @@ def generate_and_display_plot(function_string):
         st.error(f"Error generating plot: {e}")
         
     plt.close()
+
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -140,9 +163,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: `{function_string}`"})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: ``"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: `{function_string}`")
+            type_response(f"Generating a plot of function: ``")
         generate_and_display_plot(function_string)
 
     else:
