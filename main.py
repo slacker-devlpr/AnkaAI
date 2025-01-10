@@ -74,11 +74,10 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            if message.get("type") == "image": # Check if content is an image
-              st.image(message["content"])
+            if "image" in message:
+                st.image(message["image"])
             else:
-               st.markdown(message["content"])
-
+              st.markdown(message["content"])
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -97,7 +96,7 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function: .
+        Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
         Use 1000 data points, x axis from -10 to 10.
         The plot should have a black background and for the axis white lines.
         The line should be blueish.
@@ -116,7 +115,7 @@ def generate_and_display_plot(function_string):
             code_to_execute = match.group(1)
         else:
             code_to_execute = plot_code_response
-
+            
         fig, ax = plt.subplots()
         
         # Set background color to black
@@ -141,8 +140,8 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-            if line.get_color() == 'C0':  # Check if default color
-              line.set_color('white')
+          if line.get_color() == 'C0':  # Check if default color
+            line.set_color('white')
         
         # Set title color to white
         ax.title.set_color('white')
@@ -155,12 +154,11 @@ def generate_and_display_plot(function_string):
         # Encode to base64 for display
         image_base64 = base64.b64encode(buf.read()).decode("utf-8")
         
-        # Save plot as a message
-        st.session_state.messages.append({"role": "assistant", "content": f'data:image/png;base64,{image_base64}', "type": "image"})
-                
-    except Exception as e:
-        st.error(f"Error generating plot: ")
+        # Add the image to the messages
+        st.session_state.messages.append({"role": "assistant", "image": f'data:image/png;base64,{image_base64}'})
         
+    except Exception as e:
+        st.error(f"Error generating plot: {e}")
     plt.close()
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -208,10 +206,12 @@ if prompt := st.chat_input("How can I help?"):
             
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-              type_response(response)
+                type_response(response)
             
             generate_and_display_plot(function_string)
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
                 type_response(response)
+                
+    display_messages(st.session_state.messages)
