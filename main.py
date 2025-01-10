@@ -74,10 +74,7 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            if "image" in message:
-                st.image(message["image"])
-            else:
-              st.markdown(message["content"])
+            st.markdown(message["content"])
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -154,11 +151,12 @@ def generate_and_display_plot(function_string):
         # Encode to base64 for display
         image_base64 = base64.b64encode(buf.read()).decode("utf-8")
         
-        # Add the image to the messages
-        st.session_state.messages.append({"role": "assistant", "image": f'data:image/png;base64,{image_base64}'})
+        # Display the plot in Streamlit
+        st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Plot">', unsafe_allow_html=True)
         
     except Exception as e:
         st.error(f"Error generating plot: {e}")
+        
     plt.close()
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -172,9 +170,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: "})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: ")
+            type_response(f"Generating a plot of function: {function_string}")
         generate_and_display_plot(function_string)
 
     else:
@@ -212,6 +210,4 @@ if prompt := st.chat_input("How can I help?"):
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-                type_response(response)
-                
-    display_messages(st.session_state.messages)
+               type_response(response)
