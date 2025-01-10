@@ -109,8 +109,6 @@ if prompt := st.chat_input("How can I help?"):
             "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it. "
             "Make sure to put the correct latex code around the math equation."
             "Do not use ( in anything from now on if you want to display anything latex(math for example) you surrond the latex with $$"
-            "Use **examlple** or **example** to highlight titles/subtitles. Do not use your way of listing items. Never list anything write it another way and use titles/subtitles."
-            "Example: where $$a$$, $$b$$, and $$c$$ are coefficients, and $$a \neq 0$$."
         )
     }
 
