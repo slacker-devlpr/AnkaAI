@@ -170,7 +170,7 @@ if prompt := st.chat_input("How can I help?"):
         function_string = prompt[5:].strip()
         st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: ``")
+            type_response(f"Generating a plot of function: {function_string}")
         generate_and_display_plot(function_string)
 
     else:
