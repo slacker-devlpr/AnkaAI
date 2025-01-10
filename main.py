@@ -1,7 +1,7 @@
 from openai import OpenAI
 import streamlit as st
 import shelve
-import time  # For simulating typing animation
+import time
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -16,11 +16,11 @@ st.markdown(
         font-size: 36px;
         font-weight: bold;
         font-family: 'Raleway', sans-serif;
-        background: linear-gradient(45deg, #ffffff, #000000); /* Gradient colors */
+        background: linear-gradient(45deg, #ffffff, #000000);
         background-size: 100% 150%;
         -webkit-background-clip: text;
-        color: transparent; /* Make text transparent so the gradient shows */
-        text-align: center; /* Align to the center */
+        color: transparent;
+        text-align: center;
     }
     </style>
     <div class="custom-title">Anka-AI</div>
@@ -59,8 +59,18 @@ def type_response(content):
     for char in content:
         full_response += char
         message_placeholder.markdown(full_response + "/")
-        time.sleep(0.005)  # Adjust typing speed as needed
-    message_placeholder.markdown(full_response)  # Finalize the response
+        time.sleep(0.005)
+    message_placeholder.markdown(full_response)
+
+# Function to render LaTeX using st.latex
+def render_latex(text):
+    parts = text.split("$$")
+    for i, part in enumerate(parts):
+        if i % 2 == 1:
+            st.latex(part)
+        else:
+            st.markdown(part)
+
 
 # Load chat history if not already in session
 if "messages" not in st.session_state:
@@ -80,21 +90,27 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
+        render_latex(message["content"])  # Use the render_latex here
+
 
 # Main chat interface
-if prompt := st.chat_input("How can I help?"): 
+if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
-        st.markdown(prompt)
+       st.markdown(prompt)
 
-    # Direct response without search functionality
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj."
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. "
+            "When you respond with a mathematical formula, please enclose it in double dollar signs ($$). "
+            "This will render the formula as LaTeX. For example, if you want to show the Pythagorean theorem "
+            "you would write: '$$c^2 = a^2 + b^2$$' "
+            "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it. "
+            "Make sure to put the correct latex code around the math equation"
         )
     }
+
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -103,4 +119,5 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        type_response(response)
+         type_response(response)
+
