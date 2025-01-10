@@ -1,4 +1,3 @@
-from openai import OpenAI
 import streamlit as st
 import time
 import re
@@ -6,8 +5,11 @@ import markdown
 import matplotlib.pyplot as plt
 import numpy as np
 import io
+from openai import OpenAI
+from PIL import Image
 import base64
-
+from term_image.image import from_bytes
+import os
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -65,7 +67,7 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -75,6 +77,51 @@ def display_messages(messages):
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
+
+# Function to generate the plot
+def generate_plot(function_str):
+    try:
+        # Generate code using OpenAI to plot the function
+        prompt = f"""
+        Generate Python code using numpy and matplotlib to plot the following function: {function_str}.
+        - Use a black background with white lines for the plot
+        - Ensure that x and y axes are included.
+        - Rotate the x axis 45 degrees counter-clockwise
+        - The x-axis should range from -10 to 10.
+        - Do not include any comments in the code.
+        - Ensure all the libraries used are imported.
+        - DO NOT print or show the plot, just write code to generate the plot.
+        """
+        response = client.chat.completions.create(
+            model=st.session_state["openai_model"],
+            messages=[{"role": "user", "content": prompt}]
+        ).choices[0].message.content
+        
+        # Execute the generated code
+        exec(response, globals())
+        
+        # Save plot to a buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', facecolor='black')
+        buf.seek(0)
+        
+        # Display in Streamlit
+        image = Image.open(buf)
+        st.image(image, caption=f'Plot of {function_str}')
+        
+        # Display in terminal
+        if os.name != 'nt': # Check to see if its a windows terminal
+            image_bytes = buf.getvalue()
+            term_image = from_bytes(image_bytes)
+            print(term_image)
+        else:
+            print("Terminal image not supported on Windows.")
+        
+        plt.close()
+        return "Plot generated successfully!"
+    except Exception as e:
+        print(e)
+        return f"Error generating plot: {e}"
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -88,63 +135,18 @@ if not st.session_state.messages:
 
 display_messages(st.session_state.messages)
 
-# Function to generate and display plot
-def generate_and_display_plot(function_string):
-    try:
-        # Generate Python code using OpenAI to plot the function
-        plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
-        The x-axis should range from -10 to 10, use 1000 data points.
-        Only generate the code block no additional explanation.
-        """
-        plot_code_response = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[{"role": "user", "content": plot_code_prompt}]
-        ).choices[0].message.content
-
-        # Execute the generated code
-        # First extract the code from the string
-        match = re.search(r'```python\n(.*?)\n```', plot_code_response, re.DOTALL)
-        if match:
-            code_to_execute = match.group(1)
-        else:
-            code_to_execute = plot_code_response
-        
-        fig, ax = plt.subplots()
-        exec(code_to_execute, globals(), locals())
-        
-        # Save the plot to a buffer
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        
-        # Encode to base64 for display
-        image_base64 = base64.b64encode(buf.read()).decode("utf-8")
-        
-        # Display the plot in Streamlit
-        st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Plot">', unsafe_allow_html=True)
-        
-    except Exception as e:
-        st.error(f"Error generating plot: {e}")
-        
-    plt.close()
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
-
-    if prompt.strip().lower() == "/plot":
-        st.session_state.messages.append({"role":"assistant", "content": "Please enter the function to plot after the command `/plot` such as `/plot x^2`"})
+    
+    if prompt.startswith("/plot"):
+        function_str = prompt[len("/plot"):].strip()
+        plot_message = generate_plot(function_str)
+        st.session_state.messages.append({"role": "assistant", "content": plot_message})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
-    elif prompt.lower().startswith("/plot"):
-        function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: `{function_string}`"})
-        with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: `{function_string}`")
-        generate_and_display_plot(function_string)
-
+            type_response(plot_message)
     else:
         system_message = {
             "role": "system",
@@ -157,7 +159,6 @@ if prompt := st.chat_input("How can I help?"):
                 "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
             )
         }
-
         response = client.chat.completions.create(
             model=st.session_state["openai_model"],
             messages=[system_message] + st.session_state.messages
