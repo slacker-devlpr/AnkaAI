@@ -3,3 +3,4 @@ openai
 markdown-it-py
 mdit-py-plugins
 markdown
+uuid
