@@ -74,7 +74,7 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(render_latex(message["content"]), unsafe_allow_html = True)
+            st.markdown(message["content"])
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -93,7 +93,7 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
+        Generate python code using matplotlib and numpy to plot the following mathematical function: `{function_string}`.
         Use 1000 data points, x axis from -10 to 10.
         The plot should have a black background and for the axis white lines.
         The line should be blueish.
@@ -137,8 +137,8 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-            if line.get_color() == 'C0':  # Check if default color
-                line.set_color('white')
+          if line.get_color() == 'C0':  # Check if default color
+            line.set_color('white')
         
         # Set title color to white
         ax.title.set_color('white')
@@ -170,9 +170,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: $$y = {function_string}$$"})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: `{function_string}`"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: $$y = {function_string}$$")
+            type_response(f"Generating a plot of function: `{function_string}`")
         generate_and_display_plot(function_string)
 
     else:
@@ -187,7 +187,7 @@ if prompt := st.chat_input("How can I help?"):
                 "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
             )
         }
-       
+
         response = client.chat.completions.create(
             model=st.session_state["openai_model"],
             messages=[system_message] + st.session_state.messages
