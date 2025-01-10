@@ -1,6 +1,3 @@
-Okay, I understand. The issue is that when a new prompt is submitted, the previous messages aren't re-processed to ensure LaTeX rendering persists. This is because the st.markdown call within display_messages is not automatically re-evaluated with new context.
-
-Here's the modified code with the fix:
 
 from openai import OpenAI
 import streamlit as st
