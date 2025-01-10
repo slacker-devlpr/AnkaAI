@@ -71,7 +71,7 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            type_response(message["content"])
+            st.markdown(message["content"])
 
 
 # Add initial hello message if first visit
