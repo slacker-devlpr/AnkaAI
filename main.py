@@ -4,13 +4,12 @@ import time
 import re
 import markdown
 
-# Set page configuration
+
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
-# Custom title style
 st.markdown(
     """
     <style>
@@ -31,7 +30,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Spacer
 st.text(" ")
 st.text(" ")
 st.text(" ")
@@ -57,23 +55,24 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
+
 # Function to find and render LaTeX using st.markdown
 def render_latex(text):
     parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
     rendered_parts = []
-    for part in parts:
+    for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
-            rendered_parts.append(part)
+           rendered_parts.append(part)
     return "".join(rendered_parts)
 
-# Display chat messages function
-def display_messages():
-    for message in st.session_state.messages:
+def display_messages(messages):
+    for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
+
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -85,8 +84,8 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
-# Display chat messages every time after processing new input
-display_messages()
+# Display chat messages
+display_messages(st.session_state.messages)
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -102,7 +101,7 @@ if prompt := st.chat_input("How can I help?"):
             "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
             "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
             "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-            "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible."
+            "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
         )
     }
 
@@ -112,6 +111,5 @@ if prompt := st.chat_input("How can I help?"):
     ).choices[0].message.content
 
     st.session_state.messages.append({"role": "assistant", "content": response})
-
-    # Ensure all messages are displayed after a response
-    display_messages()
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
+        type_response(response)
