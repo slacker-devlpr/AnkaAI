@@ -3,10 +3,7 @@ import streamlit as st
 import time
 import re
 import markdown
-import matplotlib.pyplot as plt
-import io
-import base64
-import numpy as np
+
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -59,56 +56,22 @@ def type_response(content):
     message_placeholder.markdown(full_response)
 
 
-def create_graph(code):
-    try:
-        fig = plt.figure()
-        exec(code)
-        plt.grid(True)  # Add grid to the graph
-        plt.xlabel("x-axis") # Add x-axis label
-        plt.ylabel("y-axis")  #Add y-axis label
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        plt.close(fig)  # Close the figure after saving
-        return base64.b64encode(buf.read()).decode("utf-8")
-    except Exception as e:
-        return f"Error generating graph: {e}"
-
 # Function to find and render LaTeX using st.markdown
 def render_latex(text):
-    parts = re.split(r'(\$\$[^\$]+\$\$)', text)
+    parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
            rendered_parts.append(part)
-
-    return "".join(rendered_parts)
-
-def render_code_blocks(text):
-    parts = re.split(r'(&& code &&.*?&& /code &&)', text, flags=re.DOTALL)
-    rendered_parts = []
-    for i, part in enumerate(parts):
-        if part.startswith("&& code &&") and part.endswith("&& /code &&"):
-           code = part[len("&& code &&"):-len("&& /code &&")].strip()
-           image_data = create_graph(code)
-           if isinstance(image_data, str) and image_data.startswith("Error"):
-                rendered_parts.append(f"<p style='color:red;'>{image_data}</p>")  # display error message in red
-           else:
-               rendered_parts.append(f'<img src="data:image/png;base64,{image_data}" />')
-
-        else:
-          rendered_parts.append(render_latex(part))
-
     return "".join(rendered_parts)
 
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(render_code_blocks(message["content"]), unsafe_allow_html=True)
+            st.markdown(message["content"])
 
 
 # Add initial hello message if first visit
@@ -138,7 +101,6 @@ if prompt := st.chat_input("How can I help?"):
             "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
             "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
             "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-            "If you need to plot a graph of a function, you need to output the code for it in python inside the following format && code && code here && /code &&. For example && code && import matplotlib.pyplot as plt \nimport numpy as np\nx = np.linspace(-5,5,400)\ny= x**2\nplt.plot(x,y) && /code &&"
             "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
         )
     }
@@ -150,4 +112,4 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-       type_response(response)
+        type_response(response)
