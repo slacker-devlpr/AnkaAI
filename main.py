@@ -1,4 +1,8 @@
 
+
+
+Response
+Experimental 
 from openai import OpenAI
 import streamlit as st
 import time
@@ -185,7 +189,8 @@ if prompt := st.chat_input("How can I help?"):
                 "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
                 "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
                 "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-                "If the user's wants something to be ploted, use this command: %%formula%%, for example: %%x^2%%. And it will be displayed Do not include more formulas than the main formula. Dont forget to always use latex around math symbols."
+                "If the user's input can be ploted, generate the correct formula with this surounding: %%formula%%, for example: %%x^2%%. Do not include more formulas than the main formula."
+                "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
             )
         }
 
@@ -206,7 +211,7 @@ if prompt := st.chat_input("How can I help?"):
             with st.chat_message("assistant", avatar=BOT_AVATAR):
                 type_response(response)
             
-            with st.chat_message("assistant", avatar=BOT_AVATAR):
+            st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: `function_string`"})
             generate_and_display_plot(function_string)
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
