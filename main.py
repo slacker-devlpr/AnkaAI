@@ -71,7 +71,7 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
+            type_response(message["content"])
 
 
 # Add initial hello message if first visit
@@ -84,8 +84,8 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
-# Display chat messages
-#display_messages(st.session_state.messages)
+
+display_messages(st.session_state.messages)
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
