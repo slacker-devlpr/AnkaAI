@@ -4,6 +4,7 @@ import time
 import re
 import markdown
 import uuid
+import packaging.version
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -36,7 +37,7 @@ st.text(" ")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = r"Anka (1).png"
-client = OpenAI(api_key='YOUR_API_KEY') # Replace with your actual API key
+client = OpenAI(api_key='YOUR_API_KEY')  # Replace with your actual API key
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-4o-mini"
@@ -63,12 +64,19 @@ def render_latex(text):
             rendered_parts.append(part)
     return "".join(rendered_parts)
 
+# Check Streamlit version for key support
+streamlit_version = packaging.version.parse(st.__version__)
+key_supported = streamlit_version >= packaging.version.parse("1.12.0")  # Or a suitable version
+
 def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            key = str(uuid.uuid4())  # Generate a unique key
-            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True, key=key)
+            if key_supported:
+                key = str(uuid.uuid4())
+                st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True, key=key)
+            else:
+                st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
 
 if not st.session_state.messages:
     initial_message = {
