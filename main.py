@@ -85,7 +85,7 @@ if not st.session_state.messages:
     st.session_state.messages.append(initial_message)
 
 # Display chat messages
-display_messages(st.session_state.messages)
+#display_messages(st.session_state.messages)
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
@@ -114,4 +114,3 @@ if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
-        display_messages(st.session_state.messages)
