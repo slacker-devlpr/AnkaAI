@@ -1,73 +1,13 @@
+from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
-from openai import OpenAI
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
-st.latex("\documentclass{article}
-\usepackage{amsmath}
 
-\begin{document}
-
-\title{Derivation of the Quadratic Formula}
-\author{Anka-AI}
-\date{\today}
-\maketitle
-
-The quadratic formula is used to find the solutions of a quadratic equation of the form:
-
-\[
-ax^2 + bx + c = 0
-\]
-
-where \(a \neq 0\). To derive the quadratic formula, we start by completing the square:
-
-1. Divide the entire equation by \(a\):
-
-\[
-x^2 + \frac{b}{a} x + \frac{c}{a} = 0
-\]
-
-2. Rearranging gives:
-
-\[
-x^2 + \frac{b}{a} x = -\frac{c}{a}
-\]
-
-3. Next, we complete the square on the left side:
-
-\[
-x^2 + \frac{b}{a} x + \left(\frac{b}{2a}\right)^2 = -\frac{c}{a} + \left(\frac{b}{2a}\right)^2
-\]
-
-4. This simplifies to:
-
-\[
-\left(x + \frac{b}{2a}\right)^2 = \frac{b^2 - 4ac}{4a^2}
-\]
-
-5. Taking the square root of both sides, we have:
-
-\[
-x + \frac{b}{2a} = \pm \frac{\sqrt{b^2 - 4ac}}{2a}
-\]
-
-6. Finally, isolating \(x\) gives us the quadratic formula:
-
-\[
-x = -\frac{b}{2a} \pm \frac{\sqrt{b^2 - 4ac}}{2a}
-\]
-
-Thus, the solutions for \(x\) are:
-
-\[
-x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
-\]
-
-\end{document}")
 st.markdown(
     """
     <style>
@@ -118,7 +58,7 @@ def type_response(content):
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "_")
+        message_placeholder.markdown(full_response + "/")
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
 
@@ -140,10 +80,7 @@ if not st.session_state.messages:
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
     with st.chat_message(message["role"], avatar=avatar):
-        if "LaTeX:" in message["content"]:
-            st.latex(message["content"].replace("LaTeX:", ""))
-        else:
-            st.markdown(message["content"])
+        st.markdown(message["content"])
 
 # Main chat interface
 if prompt := st.chat_input("How can I help?"): 
@@ -155,7 +92,7 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. Format all mathematical content using 'LaTeX:' prefix."
+            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj."
         )
     }
 
@@ -166,7 +103,5 @@ if prompt := st.chat_input("How can I help?"):
 
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        if "LaTeX:" in response:
-            st.latex(response.replace("LaTeX:", ""))
-        else:
-            type_response(response)
+        type_response(response)
+
