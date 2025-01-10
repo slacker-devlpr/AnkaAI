@@ -108,7 +108,7 @@ if prompt := st.chat_input("How can I help?"):
             "you would write: '$$c^2 = a^2 + b^2$$'"
             "Make sure that only the mathematical formulas are surrounded by $$ and that you don't surround other text with it. "
             "Make sure to put the correct latex code around the math equation."
-            "Do not use ( in anything from now on if you want to display anything latex(math for example) you surrond the latex with $$"
+            "Do not use ( in anything from now on if you want to display anything latex(math for example) you surround the latex with $$. DO NOT USE ANY ( ANYWHERE THAT ISNT LATEX!!!"
         )
     }
 
