@@ -1,10 +1,7 @@
 from openai import OpenAI
 import streamlit as st
 import time
-from markdown_it import MarkdownIt
-from mdit_py_plugins.texmath import texmath_plugin
-from mdit_py_plugins.amsmath import amsmath_plugin
-
+import re
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -56,28 +53,32 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
-# Markdown It setup
-md = MarkdownIt().use(texmath_plugin).use(amsmath_plugin)
 
-def render_markdown(text):
-    """Renders text with LaTeX using markdown-it-py."""
-    return md.render(text)
+# Function to find and render LaTeX using st.markdown
+def render_latex(text):
+    parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
+    for i, part in enumerate(parts):
+        if part.startswith("$$") and part.endswith("$$"):
+            st.latex(part[2:-2])
+        else:
+            st.markdown(part)
 
 def display_messages(messages):
-  for message in messages:
-    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(render_markdown(message["content"]), unsafe_allow_html=True)
+    for message in messages:
+        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+        with st.chat_message(message["role"], avatar=avatar):
+            render_latex(message["content"])
+
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
-  initial_message = {
-      "role": "assistant",
-      "content": "Welcome to Anka-AI! As your dedicated math assistant, I'm here to provide expert guidance and support on a wide range of mathematical concepts. Whether you're solving complex equations or seeking to enhance your skills, let's work together to make math clear and engaging. Your journey to mathematical mastery starts here!"
-  }
-  st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
-  st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
-  st.session_state.messages.append(initial_message)
+    initial_message = {
+        "role": "assistant",
+        "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"
+    }
+    st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
+    st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
+    st.session_state.messages.append(initial_message)
 
 # Display chat messages
 display_messages(st.session_state.messages)
@@ -91,19 +92,20 @@ if prompt := st.chat_input("How can I help?"):
     system_message = {
         "role": "system",
         "content": (
-            "You are an artificial intelligence that helps with math named Anka-AI. You were created by Gal Kokalj. "
-            "When you respond with a mathematical formula, please enclose it in double dollar signs ($$). "
-            "This will render the formula as LaTeX. For example, if you want to show the Pythagorean theorem "
-            "you would write: '$$c^2 = a^2 + b^2$$ and the explanation Where: $$c$$ is the length of the hypotenuse, $$a$$ and $$b$$ are the lengths of the other two sides. "
-
+            "You are Anka-AI, a specialized artificial intelligence for assisting with mathematics. You were created by Gal Kokalj. "
+            "Your primary goal is to help users understand and solve math problems. "
+            "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
+            "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
+            "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
+            "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
         )
     }
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=st.session_state["openai_model"],
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
-
+    
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
