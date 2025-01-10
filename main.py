@@ -207,7 +207,6 @@ if prompt := st.chat_input("How can I help?"):
             with st.chat_message("assistant", avatar=BOT_AVATAR):
                 type_response(response)
             
-            st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: ``"})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
               type_response(f"Generating a plot of function: ``")
             generate_and_display_plot(function_string)
