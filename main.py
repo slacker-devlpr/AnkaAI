@@ -2,8 +2,6 @@ from openai import OpenAI
 import streamlit as st
 import time
 import re
-import markdown
-
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -45,13 +43,18 @@ if "openai_model" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Keep track of the last message displayed
+if "last_displayed_index" not in st.session_state:
+    st.session_state.last_displayed_index = -1
+
+
 # Typing animation function
 def type_response(content):
     message_placeholder = st.empty()
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response + "▌")  # Use a visual cursor
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
@@ -59,20 +62,19 @@ def type_response(content):
 # Function to find and render LaTeX using st.markdown
 def render_latex(text):
     parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
-    rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            st.latex(part[2:-2])
         else:
-           rendered_parts.append(part)
-    return "".join(rendered_parts)
+            st.markdown(part)
 
 def display_messages(messages):
-    for message in messages:
-        avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-        with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(markdown.markdown(render_latex(message["content"])), unsafe_allow_html=True)
-
+    for i, message in enumerate(messages):
+        if i > st.session_state.last_displayed_index:
+            avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+            with st.chat_message(message["role"], avatar=avatar):
+                render_latex(message["content"])
+    st.session_state.last_displayed_index = len(messages) -1
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -109,7 +111,7 @@ if prompt := st.chat_input("How can I help?"):
         model=st.session_state["openai_model"],
         messages=[system_message] + st.session_state.messages
     ).choices[0].message.content
-
+    
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         type_response(response)
