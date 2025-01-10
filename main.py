@@ -120,6 +120,10 @@ if prompt := st.chat_input("How can I help?"):
     ).choices[0].message.content
     print(response)
     st.session_state.messages.append({"role": "assistant", "content": response})
+    for message in st.session_state.messages:
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
+        render_latex(message["content"])  # Use the render_latex here
     with st.chat_message("assistant", avatar=BOT_AVATAR):
          type_response(response)
 
