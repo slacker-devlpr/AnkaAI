@@ -1,7 +1,7 @@
-from openai import OpenAI
 import streamlit as st
 import shelve
 import time  # For simulating typing animation
+from openai import OpenAI
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -58,7 +58,7 @@ def type_response(content):
     full_response = ""
     for char in content:
         full_response += char
-        message_placeholder.markdown(full_response + "/")
+        message_placeholder.markdown(full_response + "_")
         time.sleep(0.005)  # Adjust typing speed as needed
     message_placeholder.markdown(full_response)  # Finalize the response
 
