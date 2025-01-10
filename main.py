@@ -1,3 +1,4 @@
+from openai import OpenAI
 import streamlit as st
 import time
 import re
@@ -5,11 +6,8 @@ import markdown
 import matplotlib.pyplot as plt
 import numpy as np
 import io
-from openai import OpenAI
-from PIL import Image
 import base64
-from term_image.image import from_bytes
-import os
+
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
@@ -61,13 +59,14 @@ def type_response(content):
         time.sleep(0.005)
     message_placeholder.markdown(full_response)
 
+
 # Function to find and render LaTeX using st.markdown
 def render_latex(text):
     parts = re.split(r'(\$\$[^\$]+\$\$)', text)  # Split at $$...$$ delimiters
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -76,52 +75,71 @@ def display_messages(messages):
     for message in messages:
         avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message["content"])
+            if isinstance(message["content"], str):
+                st.markdown(message["content"])
+            elif isinstance(message["content"], dict) and "image" in message["content"]:
+                st.image(message["content"]["image"])
 
-# Function to generate the plot
-def generate_plot(function_str):
+
+
+# Function to generate plot code and display it
+def generate_and_display_plot(function):
+  
+    system_message = {
+        "role": "system",
+        "content": (
+            "You are an expert Python programmer, specialized in generating plotting code with matplotlib and numpy. "
+            "You will be given a mathematical function and your task is to generate the code for plotting it. "
+            "Always include x and y axis in the graph. Rotate x axis labels to 45 degrees"
+             "The graph should have a black background and white lines. "
+            "Do not include any comments or explanations in your code. "
+        )
+    }
+
+    prompt_message = {
+        "role": "user",
+        "content": f"Generate Python code using matplotlib and numpy to plot the function: {function}",
+    }
+
+    response = client.chat.completions.create(
+        model=st.session_state["openai_model"],
+        messages=[system_message, prompt_message]
+    ).choices[0].message.content
+
+
     try:
-        # Generate code using OpenAI to plot the function
-        prompt = f"""
-        Generate Python code using numpy and matplotlib to plot the following function: {function_str}.
-        - Use a black background with white lines for the plot
-        - Ensure that x and y axes are included.
-        - Rotate the x axis 45 degrees counter-clockwise
-        - The x-axis should range from -10 to 10.
-        - Do not include any comments in the code.
-        - Ensure all the libraries used are imported.
-        - DO NOT print or show the plot, just write code to generate the plot.
-        """
-        response = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[{"role": "user", "content": prompt}]
-        ).choices[0].message.content
+        # Create a Matplotlib figure and axes with a black background
+        fig, ax = plt.subplots(facecolor='black')
+        ax.set_facecolor('black')
+        ax.spines['bottom'].set_color('white')
+        ax.spines['top'].set_color('white')
+        ax.spines['right'].set_color('white')
+        ax.spines['left'].set_color('white')
+        ax.tick_params(axis='x', colors='white', rotation=45)
+        ax.tick_params(axis='y', colors='white')
+        ax.xaxis.label.set_color('white')
+        ax.yaxis.label.set_color('white')
+
         
-        # Execute the generated code
-        exec(response, globals())
-        
-        # Save plot to a buffer
+        exec(response, locals()) # Execute the generated code
+
+        # Save the plot to a BytesIO object
         buf = io.BytesIO()
-        plt.savefig(buf, format='png', facecolor='black')
+        plt.savefig(buf, format='png', facecolor=fig.get_facecolor())
         buf.seek(0)
         
-        # Display in Streamlit
-        image = Image.open(buf)
-        st.image(image, caption=f'Plot of {function_str}')
-        
-        # Display in terminal
-        if os.name != 'nt': # Check to see if its a windows terminal
-            image_bytes = buf.getvalue()
-            term_image = from_bytes(image_bytes)
-            print(term_image)
-        else:
-            print("Terminal image not supported on Windows.")
-        
-        plt.close()
-        return "Plot generated successfully!"
+        # Encode the plot to base64 for display in Streamlit
+        image_base64 = base64.b64encode(buf.read()).decode("utf-8")
+        plot_data = {"image": f"data:image/png;base64,{image_base64}"}
+
+        st.session_state.messages.append({"role": "assistant", "content": plot_data})
+        return True
+
     except Exception as e:
-        print(e)
-        return f"Error generating plot: {e}"
+        st.error(f"Error generating plot: {e}")
+        return False
+
+
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
@@ -133,6 +151,7 @@ if not st.session_state.messages:
     st.toast("You are currently running Anka-AI 1.0.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
 
+
 display_messages(st.session_state.messages)
 
 # Main chat interface
@@ -141,24 +160,23 @@ if prompt := st.chat_input("How can I help?"):
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
     
-    if prompt.startswith("/plot"):
-        function_str = prompt[len("/plot"):].strip()
-        plot_message = generate_plot(function_str)
-        st.session_state.messages.append({"role": "assistant", "content": plot_message})
-        with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(plot_message)
+    if prompt.startswith("/plot "):
+        function = prompt[6:]  # Extract function from the command
+        if generate_and_display_plot(function):
+            st.rerun()  # Rerun to render the new plot.
     else:
         system_message = {
-            "role": "system",
-            "content": (
-                "You are Anka-AI, a specialized artificial intelligence for assisting with mathematics. You were created by Gal Kokalj. "
-                "Your primary goal is to help users understand and solve math problems. "
-                "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
-                "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
-                "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-                "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
-            )
-        }
+        "role": "system",
+        "content": (
+            "You are Anka-AI, a specialized artificial intelligence for assisting with mathematics. You were created by Gal Kokalj. "
+            "Your primary goal is to help users understand and solve math problems. "
+            "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
+            "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
+            "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
+            "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible"
+        )
+    }
+    
         response = client.chat.completions.create(
             model=st.session_state["openai_model"],
             messages=[system_message] + st.session_state.messages
