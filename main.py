@@ -193,7 +193,7 @@ if prompt := st.chat_input("How can I help?"):
         ).choices[0].message.content
         
         # Check for plot command
-        plot_match = re.search(r'%%(.*?)%%', response)
+        plot_match = re.search(r'%%(*?)%%', response)
         if plot_match:
             function_string = plot_match.group(1)
             
