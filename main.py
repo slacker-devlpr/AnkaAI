@@ -102,7 +102,7 @@ def generate_and_display_plot(function_string):
         """
         plot_code_response = client.chat.completions.create(
             model=st.session_state["openai_model"],
-            #messages=[{"role": "user", "content": plot_code_prompt}]
+            messages=[{"role": "user", "content": plot_code_prompt}]
         ).choices[0].message.content
 
         # Execute the generated code
