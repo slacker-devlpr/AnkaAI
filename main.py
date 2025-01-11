@@ -184,7 +184,7 @@ if prompt := st.chat_input("How can I help?"):
                 "When you provide mathematical expressions or formulas, always enclose them within double dollar signs ($$), "
                 "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
                 "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
-                "You can plot any graph by using the command %%formula%% at the end and only end of your response, for example: %%x^2%%. This is a command and will be invisible to the user so dont talk about it. Do not include more formulas than the main formula. For example if you want to create a rectangle you'll say %%a rectangle with side a= and side b=%%"
+                "You can plot any graph by using the command %%formula%% at the end and only end of your response, for example: %%x^2%%. This is a command and will be invisible to the user so dont talk about it. Do not include more formulas than the main formula. For example if you want to create a rectangle you'll say %%a rectangle with side a= and side b=%%. If you will generate a graph at the end say: Generating image: `the function/instructions` using numphy and matplotlib. "
                 "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible. IF YOU DO NOT USE CORRECT LATEX THE PROGRAM WOULD CRASH USE IT for every math symbol, equation, or expression, no matter how simple it is. "
             )
         }
