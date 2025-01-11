@@ -93,11 +93,11 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function: {function_string}.
-        Use 1000 data points, make it look okay, find a good ration for the y and x axis so that its clear to read.
+        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
+        Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read.
         The plot should have a black background and for the axis white lines.
         The line should be blueish.
-        Use a good ratio to make it look good.
+        For instructions you can use more lines for example a rectangle would be made out of four lines that end at some point and are connecting.
         Only generate the code block no additional explanation.
         """
         plot_code_response = client.chat.completions.create(
