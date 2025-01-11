@@ -185,7 +185,7 @@ if prompt := st.chat_input("How can I help?"):
                 "which will be rendered as LaTeX. For example, 'The area of a circle is given by $$A = \\pi r^2$$' and 'The symbol $$x$$ represents a variable'. "
                 "Use LaTeX formatting for every math symbol, equation, or expression, no matter how simple it is. Do not miss any math symbols and always put them in latex."
                 "You can plot any graph by using the command %%formula%% at the end and only end of your response, for example: %%x^2%%. This is a command and will be invisible to the user so dont talk about it. Do not include more formulas than the main formula."
-                "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible. "
+                "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible. IF YOU DO NOT USE CORRECT LATEX THE PROGRAM WOULD CRASH USE IT for every math symbol, equation, or expression, no matter how simple it is. "
             )
         }
 
