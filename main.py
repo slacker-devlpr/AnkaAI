@@ -18,7 +18,7 @@ def load_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 # Path to your image
-image_path = 'Anka (1).pngg'  # Replace with your image path
+image_path = 'Anka (1).png'  # Replace with your image path
 
 # Load and encode the image
 image_data = load_image(image_path)
