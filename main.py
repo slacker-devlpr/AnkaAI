@@ -7,61 +7,62 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-import PIL.Image
 import io
 import time
-import html 
+from PIL import Image
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
+# Function to inject custom CSS for full-screen image
+def set_fullscreen_image():
+    st.markdown(
+        """
+        <style>
+        .fullscreen-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .fade-out {
+            animation: fadeOut 2s forwards;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-# Custom HTML for fullscreen image with fade-out effect
-html_code = """
-<style>
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; visibility: hidden; }
-}
+def display_fading_image(image_path):
+    set_fullscreen_image()
 
-.fullscreen-image {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: r'Anka (1).png';
-    background-size: cover;
-    background-position: center;
-    animation: fadeOut 3s ease-out forwards;
-    z-index: 9999;
-}
-</style>
-<div class="fullscreen-image"></div>
-"""
+    image = Image.open(image_path)
 
-# Load the image and encode it as base64
-def load_image_as_base64(image_path):
-    import base64
-    from PIL import Image
-    with open(image_path, "rb") as image_file:
-        image = Image.open(image_file)
-        buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
-        return base64.b64encode(buffered.getvalue()).decode()
+    st.markdown(
+        f"""
+        <div class="fullscreen-image fade-out">
+            <img src="data:image/jpeg;base64,{st.image(image, use_column_width=True).encode('utf-8')}" alt="Fullscreen Image">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Wait for the fade-out animation to complete
+    time.sleep(2)
 
-# Replace 'your_image_path_here.png' with the path to your image
-image_path = 'Anka (1).png'
-image_data = load_image_as_base64(image_path)
-
-# Render the HTML with the image
-html(html_code.format(image_data=image_data), height=0)
-
-# Pause to allow fade-out to complete before displaying the rest of the app
-time.sleep(3)
-
+display_fading_image('Anka (1).png')
 
 st.markdown(
     """
