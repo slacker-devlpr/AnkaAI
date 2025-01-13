@@ -96,7 +96,7 @@ def generate_and_display_plot(function_string):
         Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
         Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read.
         The plot should have a black background and for the axis white lines.
-        The line should be blueish.
+        If you need to generate geometric shapes use a plain background without axi, and use common sense when creating the shapes.
         For instructions you can use more lines for example a rectangle would be made out of four lines that end at some point and are connecting.
         Only generate the code block no additional explanation.
         """
@@ -172,7 +172,7 @@ if prompt := st.chat_input("How can I help?"):
         function_string = prompt[5:].strip()
         st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: {function_string}")
+            type_response(f"Generating a plot of function: `{function_string}`")
         generate_and_display_plot(function_string)
 
     else:
