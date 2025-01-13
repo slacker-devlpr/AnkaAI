@@ -1,4 +1,4 @@
-
+from openai import OpenAI
 import streamlit as st
 import time
 import re
@@ -7,55 +7,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-from openai import OpenAI
+
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
-
-# --- Function for splash screen ---
-def show_splash_screen():
-    splash_image = r"Anka (1).png"
-    
-    # Ensure the splash screen covers the entire view without stretching
-    st.markdown(
-        f"""
-        <div style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        ">
-            <img src="{splash_image}" style="max-width: 100%; max-height: 100%; object-fit: contain;" id="splash-img">
-        </div>
-        <script>
-            // Initial delay before fading starts
-            setTimeout(function() {{
-                let splashImg = document.getElementById('splash-img');
-                if (splashImg) {{
-                    splashImg.style.transition = 'opacity 1s ease-in-out';
-                    splashImg.style.opacity = '0';
-                    setTimeout(function() {{
-                        splashImg.parentNode.style.display = 'none';
-                    }}, 1000); // Delay for fade out
-                }}
-            }}, 100); // Initial display for 0.1s
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# --- End of splash screen ---
-
-# --- Start Main App Content ---
 st.markdown(
     """
     <style>
@@ -107,7 +65,7 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -120,7 +78,6 @@ def display_messages(messages):
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
-    show_splash_screen()
     initial_message = {
         "role": "assistant",
         "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"
@@ -180,8 +137,8 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-            if line.get_color() == 'C0':  # Check if default color
-                line.set_color('white')
+          if line.get_color() == 'C0':  # Check if default color
+            line.set_color('white')
         
         # Set title color to white
         ax.title.set_color('white')
@@ -198,10 +155,9 @@ def generate_and_display_plot(function_string):
         st.markdown(f'<img src="data:image/png;base64,{image_base64}" alt="Plot">', unsafe_allow_html=True)
         
     except Exception as e:
-        st.error(f"Error generating plot: ")
+        st.error(f"Error generating plot: {e}")
         
     plt.close()
-
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -214,9 +170,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: "})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: ``")
+            type_response(f"Generating a plot of function: `{function_string}`")
         generate_and_display_plot(function_string)
 
     else:
@@ -228,6 +184,7 @@ if prompt := st.chat_input("How can I help?"):
                 "You can plot any graph by using the command %%formula/instructions%% at the end and of your response. If you want to graph something that isnt a direct function write it like this(example): %%create a rectangle%%. This command has to be always used if the user wants you to generate/fix an image/graph."
                 "Do not mention you using $$ or %% commands as their are deleted out of your response and replaced by latex or a graph."
                 "DO NOT REPLY WITH: Il fix that for you heres the updated graph:. DO THIS: Il fix that for you heres the updated graph: %%the instructions you think will solve the problem%%"
+                "I dont know why but theres a problem where you forget the command for the graphs, please make sure you include it when necasary."
             )
         }
 
@@ -252,4 +209,4 @@ if prompt := st.chat_input("How can I help?"):
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-                type_response(response)
+               type_response(response)
