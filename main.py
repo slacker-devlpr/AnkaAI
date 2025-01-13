@@ -7,12 +7,52 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-
+from streamlit.components.v1 import html
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
+
+
+
+# Custom HTML for fullscreen image with fade-out effect
+html_code = """
+<style>
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+.fullscreen-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('data:image/png;base64,{image_data}'); /* Replace with your image path */
+    background-size: cover;
+    background-position: center;
+    animation: fadeOut 3s ease-out forwards; /* Adjust duration as needed */
+    z-index: 9999;
+}
+</style>
+<div class="fullscreen-image"></div>
+"""
+
+# Load the image and encode it as base64
+def load_image_as_base64(image_path):
+    import base64
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
+
+# Replace 'your_image_path_here.png' with the path to your image
+image_path = 'your_image_path_here.png'
+image_data = load_image_as_base64(image_path)
+
+# Render the HTML with the image
+html(html_code.format(image_data=image_data), height=0)
+
 
 st.markdown(
     """
