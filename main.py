@@ -1,4 +1,5 @@
-from openai import OpenAI
+Okay, I've updated the code to include a fullscreen splash screen with a fading effect on load using the "Anka (1).png" image. Here's the revised code:
+
 import streamlit as st
 import time
 import re
@@ -7,28 +8,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
+from openai import OpenAI
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
-# --- Splash Screen Logic ---
-if "splash_displayed" not in st.session_state:
-    st.session_state.splash_displayed = False
 
-if not st.session_state.splash_displayed:
-    with st.container():
-        col1, col2, col3 = st.columns([1, 3, 1])  # Adjust column widths for centering
+# --- Function for splash screen ---
+def show_splash_screen():
+    splash_image = r"Anka (1).png"
+    
+    # Ensure the splash screen covers the entire view without stretching
+    st.markdown(
+        f"""
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        ">
+            <img src="{splash_image}" style="max-width: 100%; max-height: 100%; object-fit: contain;" id="splash-img">
+        </div>
+        <script>
+            // Initial delay before fading starts
+            setTimeout(function() {{
+                let splashImg = document.getElementById('splash-img');
+                if (splashImg) {{
+                    splashImg.style.transition = 'opacity 1s ease-in-out';
+                    splashImg.style.opacity = '0';
+                    setTimeout(function() {{
+                        splashImg.parentNode.style.display = 'none';
+                    }}, 1000); // Delay for fade out
+                }}
+            }}, 100); // Initial display for 0.1s
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        with col2:
-            splash_image = r"Anka (1).png"  # Path to your image
-            st.image(splash_image, use_column_width=True)
-            time.sleep(2)  # Display for 2 seconds
-            st.session_state.splash_displayed = True
-            st.rerun()
+# --- End of splash screen ---
 
-
+# --- Start Main App Content ---
 st.markdown(
     """
     <style>
@@ -80,7 +108,7 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -93,6 +121,7 @@ def display_messages(messages):
 
 # Add initial hello message if first visit
 if not st.session_state.messages:
+    show_splash_screen()
     initial_message = {
         "role": "assistant",
         "content": "Welcome to Anka-AI! I'm your dedicated math assistant, ready to help with a wide range of mathematical concepts. Let's work together to make math clear and engaging! What can I help you with today?"
@@ -108,7 +137,7 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: .
+        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
         Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read(for graphs the graph should always be in the shape of a square).
         The plot should have a black background and for the axis white lines.
         If youre asked to draw anything that is connected with geometry dont use y and x axis,(use a blank canvas and label each side/curve).
@@ -154,7 +183,7 @@ def generate_and_display_plot(function_string):
         for line in ax.lines:
             if line.get_color() == 'C0':  # Check if default color
                 line.set_color('white')
-            
+        
         # Set title color to white
         ax.title.set_color('white')
         
@@ -173,6 +202,7 @@ def generate_and_display_plot(function_string):
         st.error(f"Error generating plot: ")
         
     plt.close()
+
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
