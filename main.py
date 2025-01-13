@@ -1,4 +1,3 @@
-Okay, I've updated the code to include a fullscreen splash screen with a fading effect on load using the "Anka (1).png" image. Here's the revised code:
 
 import streamlit as st
 import time
