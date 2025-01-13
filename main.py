@@ -11,51 +11,56 @@ from streamlit.components.v1 import html
 import PIL.Image
 import io
 
-st.set_page_config(
-    page_title="Anka-AI, artificial intelligence for math",
-    page_icon=r"Anka (1).png"
-)
+def load_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
-# Custom HTML for fullscreen image with fade-out effect
-html_code = """
+# Path to your image
+image_path = 'your_image_path_here.png'  # Replace with your image path
+
+# Load and encode the image
+image_data = load_image(image_path)
+
+# Define custom CSS and JavaScript
+custom_css = f"""
 <style>
-@keyframes fadeOut {
-    0% { opacity: 1; }
-    100% { opacity: 0; visibility: hidden; }
-}
-
-.fullscreen-image {
+#fullscreen-image {{
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-image: url('data:image/png;base64,{image_data}');
     background-size: cover;
     background-position: center;
-    animation: fadeOut 3s ease-out forwards;
     z-index: 9999;
-}
+    opacity: 1;
+    transition: opacity 3s ease-out;
+}}
 </style>
-<div class="fullscreen-image"></div>
 """
 
-# Load the image and encode it as base64
-def load_image_as_base64(image_path):
-    import base64
-    from PIL import Image
-    with open(image_path, "rb") as image_file:
-        image = Image.open(image_file)
-        buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
-        return base64.b64encode(buffered.getvalue()).decode()
+custom_js = """
+<script>
+function fadeOutImage() {
+    const img = document.getElementById('fullscreen-image');
+    if (img) {
+        img.style.opacity = '0';
+        setTimeout(() => {
+            img.remove();
+        }, 3000); // Match the duration in CSS transition
+    }
+}
+window.onload = function() {
+    setTimeout(fadeOutImage, 2000); // Wait for 2 seconds before starting fade-out
+}
+</script>
+"""
 
-# Replace 'your_image_path_here.png' with the path to your image
-image_path = 'Anka (1).png'
-image_data = load_image_as_base64(image_path)
-
-# Render the HTML with the image
-html(html_code.format(image_data=image_data), height=0)
+# Inject CSS and JavaScript into the Streamlit app
+st.markdown(custom_css, unsafe_allow_html=True)
+st.markdown('<div id="fullscreen-image"></div>', unsafe_allow_html=True)
+st.markdown(custom_js, unsafe_allow_html=True)
 
 st.markdown(
     """
