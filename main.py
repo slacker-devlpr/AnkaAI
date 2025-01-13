@@ -73,7 +73,7 @@ def display_fullscreen_image(image_path, fade_duration=2):
 
     st.components.v1.html(html_code, height=0)  # height=0 prevents streamlit from reserving height for the html content
 
-def display_fullscreen_image("Anka (1).png", fade_duration=2):
+def display_fullscreen_image('Anka (1).png', fade_duration=2):
 
     st.markdown(
         """
