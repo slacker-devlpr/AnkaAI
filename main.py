@@ -1,21 +1,3 @@
-The error SyntaxError: invalid syntax on line 76:
-
-def display_fullscreen_image('Anka (1).png'):
-occurs because you're trying to define a function with a string as its parameter name. In Python, function parameters must be valid variable names, not string literals. You're likely trying to pass the image path to the function when you call it, not define it as a parameter.
-
-Here's how to fix it:
-
-1. Correct Function Definition:
-
-Remove the hardcoded image path from the function definition, and use a variable name to receive the image path as an argument:
-
-def display_fullscreen_image(image_path):
-    # Function code here
-2. Function Call:
-
-Where you were calling the function, call it with your string as an argument.
-
-Here is your corrected code:
 
 from openai import OpenAI
 import streamlit as st
