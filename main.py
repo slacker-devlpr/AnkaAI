@@ -47,7 +47,7 @@ def load_image_as_base64(image_path):
         return base64.b64encode(image_file.read()).decode()
 
 # Replace 'your_image_path_here.png' with the path to your image
-image_path = 'your_image_path_here.png'
+image_path = 'Anka (1).png'
 image_data = load_image_as_base64(image_path)
 
 # Render the HTML with the image
