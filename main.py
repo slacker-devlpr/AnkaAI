@@ -7,16 +7,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-from streamlit.components.v1 import html
-import PIL.Image
-import io
+
+st.set_page_config(
+    page_title="Anka-AI, artificial intelligence for math",
+    page_icon=r"Anka (1).png"
+)
 
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
 # Path to your image
-image_path = 'your_image_path_here.png'  # Replace with your image path
+image_path = 'Anka (1).pngg'  # Replace with your image path
 
 # Load and encode the image
 image_data = load_image(image_path)
