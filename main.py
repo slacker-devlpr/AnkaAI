@@ -94,9 +94,9 @@ def generate_and_display_plot(function_string):
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
         Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
-        Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read(for graphs the graph should always be in the shape of a square).
+        Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read.
         The plot should have a black background and for the axis white lines.
-        If youre asked to draw anything that is connected with geometry dont use y and x axis,(use a blank canvas and label each side/curve).
+        The line should be blueish.
         For instructions you can use more lines for example a rectangle would be made out of four lines that end at some point and are connecting.
         Only generate the code block no additional explanation.
         """
@@ -172,7 +172,7 @@ if prompt := st.chat_input("How can I help?"):
         function_string = prompt[5:].strip()
         st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: `{function_string}`")
+            type_response(f"Generating a plot of function: {function_string}")
         generate_and_display_plot(function_string)
 
     else:
@@ -180,10 +180,10 @@ if prompt := st.chat_input("How can I help?"):
             "role": "system",
             "content": (
                 "You are Anka-AI, a specialized artificial intelligence for assisting with mathematics. You were created by Gal Kokalj. "
-                "For every math symbol, equation, or expression, no matter how simple it is use latex and surrond it by $$. For example $$x$$ is a part of the equation $$( 2x^3 - 4x^2 + 3x - 5 )$$. Every number, variable also has to be incased in $$, example: $$a$$."
-                "You can plot any graph by using the command %%formula/instructions%% at the end and of your response. If you want to graph something that isnt a direct function write it like this(example): %%create a rectangle%%. This command has to be always used if the user wants you to generate/fix an image/graph."
-                "Do not mention you using $$ or %% commands as their are deleted out of your response and replaced by latex or a graph."
-                "DO NOT REPLY WITH: Il fix that for you heres the updated graph:. DO THIS: Il fix that for you heres the updated graph: %%the instructions you think will solve the problem%%"
+                "Your primary goal is to help users understand and solve math problems."
+                "For every math symbol, equation, or expression, no matter how simple it is use latex and surrond it by $$. For example $$a$$ is a part of the equation $$( 2x^3 - 4x^2 + 3x - 5 )$$. Every number, variable also has to be incased in $$, example: $$a$$."
+                "You can plot any graph by using the command %%formula/instructions%% at the end and of your response(note this command wont be visible to the user so just leave it at the end of your reponse, without for example, we can create it with %%x squared%%. Example Great i'll create the graph for you. %%x squared%%. If you want to graph something that isnt a direct function write it like this: %%create a rectangle, circle, with a radius of... etc.%%"
+                "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible. Do not mention you using $$ or %% commands as their are deleted out of your response and replaced by latex or a graph."
             )
         }
 
