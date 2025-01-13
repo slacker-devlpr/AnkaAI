@@ -13,11 +13,26 @@ st.set_page_config(
     page_icon=r"Anka (1).png"
 )
 
-# Custom CSS to center and cover the background with the image and to transition the image out
-st.markdown("""
+# --- Splash Screen Logic ---
+if "splash_displayed" not in st.session_state:
+    st.session_state.splash_displayed = False
+
+if not st.session_state.splash_displayed:
+    with st.container():
+        col1, col2, col3 = st.columns([1, 3, 1])  # Adjust column widths for centering
+
+        with col2:
+            splash_image = r"Anka (1).png"  # Path to your image
+            st.image(splash_image, use_column_width=True)
+            time.sleep(2)  # Display for 2 seconds
+            st.session_state.splash_displayed = True
+            st.rerun()
+
+
+st.markdown(
+    """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
-
     .custom-title {
         font-size: 36px;
         font-weight: bold;
@@ -28,27 +43,7 @@ st.markdown("""
         color: transparent;
         text-align: center;
     }
-     .fullscreen-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1000; /* Ensure it's on top */
-        background-size: contain; /* Contain the image without stretching */
-        background-repeat: no-repeat; /* Make sure it doesn't repeat */
-        background-position: center; /* Center the image */
-        transition: opacity 1s ease;  /* Smooth fade out */
-        background-color: white; /* Set background to white for image background */
-    }
-    .fullscreen-bg.fade-out {
-        opacity: 0;
-    }
     </style>
-    """, unsafe_allow_html=True)
-
-st.markdown(
-    """
     <div class="custom-title">Anka-AI</div>
     """,
     unsafe_allow_html=True,
@@ -85,7 +80,7 @@ def render_latex(text):
     rendered_parts = []
     for i, part in enumerate(parts):
         if part.startswith("$$") and part.endswith("$$"):
-            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>")  # This is the only change here from the previous code
+            rendered_parts.append(f"<div style='text-align:left;'>{part[2:-2]}</div>") # This is the only change here from the previous code
         else:
             rendered_parts.append(part)
     return "".join(rendered_parts)
@@ -105,37 +100,6 @@ if not st.session_state.messages:
     st.toast("Anka-AI is still in Beta. Expect mistakes!", icon="👨‍💻")
     st.toast("You are currently running Anka-AI 1.5.4.", icon="⚙️")
     st.session_state.messages.append(initial_message)
-
-
-# Image setup (fading on initial load)
-if "image_faded" not in st.session_state:
-    st.session_state.image_faded = False
-image_url = r"Anka (1).png"  # Path to your image (local or URL)
-
-if not st.session_state.image_faded:
-    st.markdown(
-        f"""
-        <div class="fullscreen-bg" style="background-image: url('{image_url}');"></div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Javascript to fade out the image
-    st.markdown("""
-        <script>
-        setTimeout(function() {
-            document.querySelector('.fullscreen-bg').classList.add('fade-out');
-           setTimeout(function() {
-                var element = document.querySelector('.fullscreen-bg');
-                if(element) {
-                element.remove();
-                }
-           }, 1000); // Remove the element after the transition is done (1s)
-
-        }, 200); // Wait 200ms before starting the fade
-        </script>
-        """, unsafe_allow_html=True)
-    st.session_state.image_faded = True
 
 display_messages(st.session_state.messages)
 
@@ -188,9 +152,9 @@ def generate_and_display_plot(function_string):
         
         # Change plot line color to white if not set in code
         for line in ax.lines:
-           if line.get_color() == 'C0':  # Check if default color
-              line.set_color('white')
-        
+            if line.get_color() == 'C0':  # Check if default color
+                line.set_color('white')
+            
         # Set title color to white
         ax.title.set_color('white')
         
@@ -209,7 +173,6 @@ def generate_and_display_plot(function_string):
         st.error(f"Error generating plot: ")
         
     plt.close()
-
 # Main chat interface
 if prompt := st.chat_input("How can I help?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
