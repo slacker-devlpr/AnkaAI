@@ -43,7 +43,7 @@ html_code = """
 # Load the image and encode it as base64
 def load_image_as_base64(image_path):
     import base64
-    with open(r'Anka (1).png', "rb") as image_file:
+    with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
 # Replace 'your_image_path_here.png' with the path to your image
