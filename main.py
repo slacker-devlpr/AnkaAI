@@ -7,15 +7,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
+import PIL.Image
+import io
+import time
+import html 
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
-import PIL.Image
-import io
-import time
 
 # Custom HTML for fullscreen image with fade-out effect
 html_code = """
