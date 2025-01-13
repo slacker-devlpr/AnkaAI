@@ -10,114 +10,14 @@ import io
 import base64
 import io
 import time
-from PIL import Image
+
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
 
-def display_fullscreen_image(image_path, fade_duration=2):
-    """Displays an image fullscreen and then fades it out.
 
-    Args:
-        image_path (str): The path to the image file.
-        fade_duration (int): The duration of the fade-out effect in seconds.
-    """
-    with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
-
-    # HTML and CSS for fullscreen image and fade-out
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{
-                margin: 0;
-                padding: 0;
-                overflow: hidden; /* Hide scrollbars */
-            }}
-            #fullscreen-container {{
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw; /* Full viewport width */
-                height: 100vh; /* Full viewport height */
-                background-image: url("data:image/jpeg;base64,"); /* Adjust MIME type if needed */
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                z-index: 9999; /* Ensure it's on top */
-                opacity: 1;
-                transition: opacity s ease-in-out;
-            }}
-            #fullscreen-container.fade-out {{
-                opacity: 0;
-            }}
-        </style>
-    </head>
-    <body>
-        <div id="fullscreen-container"></div>
-        <script>
-            setTimeout(function() {{
-                document.getElementById("fullscreen-container").classList.add("fade-out");
-            }}, 100); // Initial delay to allow the image to display
-
-             setTimeout(function() {{
-                document.getElementById("fullscreen-container").remove();
-            }}, {fade_duration * 1000 + 100}); // Remove after the fade
-        </script>
-    </body>
-    </html>
-    """
-
-    st.components.v1.html(html_code, height=0)  # height=0 prevents streamlit from reserving height for the html content
-
-def display_fading_image(image_path):
-    display_fullscreen_image(image_path)  # Corrected call here.
-    
-    st.markdown(
-        """
-        <style>
-        .fullscreen-image {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .fade-out {
-            animation: fadeOut 2s forwards;
-        }
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-    image = Image.open(image_path)
-
-    st.markdown(
-        f"""
-        <div class="fullscreen-image fade-out">
-            <img src="data:image/jpeg;base64,{st.image(image, use_container_width=True).encode('utf-8')}" alt="Fullscreen Image">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Wait for the fade-out animation to complete
-    time.sleep(2)
-display_fading_image('Anka (1).png')
 st.markdown(
     """
     <style>
