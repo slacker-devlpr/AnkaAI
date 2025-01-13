@@ -32,7 +32,7 @@ html_code = """
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('data:image/png;base64,{image_data}');
+    background-image: r'Anka (1).png';
     background-size: cover;
     background-position: center;
     animation: fadeOut 3s ease-out forwards;
