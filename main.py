@@ -1,4 +1,3 @@
-
 from openai import OpenAI
 import streamlit as st
 import time
@@ -8,15 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import base64
-import io
-import time
 
 
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
     page_icon=r"Anka (1).png"
 )
-
 
 st.markdown(
     """
@@ -97,7 +93,7 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: .
+        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
         Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read(for graphs the graph should always be in the shape of a square).
         The plot should have a black background and for the axis white lines.
         If youre asked to draw anything that is connected with geometry dont use y and x axis,(use a blank canvas and label each side/curve).
@@ -174,9 +170,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: "})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: ``")
+            type_response(f"Generating a plot of function: `{function_string}`")
         generate_and_display_plot(function_string)
 
     else:
@@ -185,9 +181,9 @@ if prompt := st.chat_input("How can I help?"):
             "content": (
                 "You are Anka-AI, a specialized artificial intelligence for assisting with mathematics. You were created by Gal Kokalj. "
                 "For every math symbol, equation, or expression, no matter how simple it is use latex and surrond it by $$. For example $$x$$ is a part of the equation $$( 2x^3 - 4x^2 + 3x - 5 )$$. Every number, variable also has to be incased in $$, example: $$a$$."
-                "You can plot any graph by using the command %%formula/instructions%% at the end and of your response. If you want to generate something with geometry do it like this: %%create a rectangle%%. This command has to be always used if the user wants you to generate/fix an image/graph."
+                "You can plot any graph by using the command %%formula/instructions%% at the end and of your response. If you want to graph something that isnt a direct function write it like this(example): %%create a rectangle%%. This command has to be always used if the user wants you to generate/fix an image/graph."
                 "Do not mention you using $$ or %% commands as their are deleted out of your response and replaced by latex or a graph."
-                "I dont know why but theres a problem where you forget the command for the graphs, please make sure you include it when necasary."
+                "DO NOT REPLY WITH: Il fix that for you heres the updated graph:. DO THIS: Il fix that for you heres the updated graph: %%the instructions you think will solve the problem%%"
             )
         }
 
@@ -212,4 +208,4 @@ if prompt := st.chat_input("How can I help?"):
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-                type_response(response)
+               type_response(response)
