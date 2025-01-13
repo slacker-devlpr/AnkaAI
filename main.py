@@ -1,3 +1,22 @@
+The error SyntaxError: invalid syntax on line 76:
+
+def display_fullscreen_image('Anka (1).png'):
+occurs because you're trying to define a function with a string as its parameter name. In Python, function parameters must be valid variable names, not string literals. You're likely trying to pass the image path to the function when you call it, not define it as a parameter.
+
+Here's how to fix it:
+
+1. Correct Function Definition:
+
+Remove the hardcoded image path from the function definition, and use a variable name to receive the image path as an argument:
+
+def display_fullscreen_image(image_path):
+    # Function code here
+2. Function Call:
+
+Where you were calling the function, call it with your string as an argument.
+
+Here is your corrected code:
+
 from openai import OpenAI
 import streamlit as st
 import time
@@ -43,13 +62,13 @@ def display_fullscreen_image(image_path, fade_duration=2):
                 left: 0;
                 width: 100vw; /* Full viewport width */
                 height: 100vh; /* Full viewport height */
-                background-image: url("data:image/jpeg;base64,{encoded_string}"); /* Adjust MIME type if needed */
+                background-image: url("data:image/jpeg;base64,"); /* Adjust MIME type if needed */
                 background-size: contain;
                 background-repeat: no-repeat;
                 background-position: center;
                 z-index: 9999; /* Ensure it's on top */
                 opacity: 1;
-                transition: opacity {fade_duration}s ease-in-out;
+                transition: opacity s ease-in-out;
             }}
             #fullscreen-container.fade-out {{
                 opacity: 0;
@@ -73,8 +92,9 @@ def display_fullscreen_image(image_path, fade_duration=2):
 
     st.components.v1.html(html_code, height=0)  # height=0 prevents streamlit from reserving height for the html content
 
-def display_fullscreen_image('Anka (1).png'):
-
+def display_fading_image(image_path):
+    display_fullscreen_image(image_path)  # Corrected call here.
+    
     st.markdown(
         """
         <style>
@@ -101,9 +121,6 @@ def display_fullscreen_image('Anka (1).png'):
         """,
         unsafe_allow_html=True
     )
-
-def display_fading_image(image_path):
-    set_fullscreen_image()
 
     image = Image.open(image_path)
 
@@ -198,7 +215,7 @@ def generate_and_display_plot(function_string):
     try:
         # Generate Python code using OpenAI to plot the function
         plot_code_prompt = f"""
-        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: {function_string}.
+        Generate python code using matplotlib and numpy to plot the following mathematical function/instructions: .
         Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read(for graphs the graph should always be in the shape of a square).
         The plot should have a black background and for the axis white lines.
         If youre asked to draw anything that is connected with geometry dont use y and x axis,(use a blank canvas and label each side/curve).
@@ -275,9 +292,9 @@ if prompt := st.chat_input("How can I help?"):
             type_response("Please enter the function to plot after the command `/plot` such as `/plot x^2`")
     elif prompt.lower().startswith("/plot"):
         function_string = prompt[5:].strip()
-        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: {function_string}"})
+        st.session_state.messages.append({"role":"assistant", "content": f"Generating a plot of function: "})
         with st.chat_message("assistant", avatar=BOT_AVATAR):
-            type_response(f"Generating a plot of function: `{function_string}`")
+            type_response(f"Generating a plot of function: ``")
         generate_and_display_plot(function_string)
 
     else:
@@ -314,4 +331,4 @@ if prompt := st.chat_input("How can I help?"):
         else:
             st.session_state.messages.append({"role": "assistant", "content": response})
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-               type_response(response)
+                type_response(response)
