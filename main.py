@@ -16,7 +16,6 @@ st.set_page_config(
     page_icon=r"Anka (1).png"
 )
 
-# Function to inject custom CSS for full-screen image
 def set_fullscreen_image():
     st.markdown(
         """
@@ -53,7 +52,7 @@ def display_fading_image(image_path):
     st.markdown(
         f"""
         <div class="fullscreen-image fade-out">
-            <img src="data:image/jpeg;base64,{st.image(image, use_column_width=True).encode('utf-8')}" alt="Fullscreen Image">
+            <img src="data:image/jpeg;base64,{st.image(image, use_container_width=True).encode('utf-8')}" alt="Fullscreen Image">
         </div>
         """,
         unsafe_allow_html=True
@@ -61,9 +60,7 @@ def display_fading_image(image_path):
     
     # Wait for the fade-out animation to complete
     time.sleep(2)
-
-display_fading_image('Anka (1).png')
-
+display_fading_image(r'Anka (1).png')
 st.markdown(
     """
     <style>
