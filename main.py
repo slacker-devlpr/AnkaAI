@@ -184,7 +184,7 @@ if prompt := st.chat_input("How can I help?"):
                 "For every math symbol, equation, or expression, no matter how simple it is use latex and surrond it by $$. For example $$a$$ is a part of the equation $$( 2x^3 - 4x^2 + 3x - 5 )$$. Every number, variable also has to be incased in $$, example: $$a$$."
                 "You can plot any graph by using the command %%formula/instructions%% at the end and of your response(note this command wont be visible to the user so just leave it at the end of your reponse, without for example, we can create it with %%x squared%%. Example Great i'll create the graph for you. %%x squared%%. If you want to create a geometric shape/shapes that can contain color write the description like this: %%create a rectangle, circle, with a radius of... etc.%%"
                 "Be concise and helpful. Use clear and simple terms to help the user learn math as easily as possible(use the most simple formulas possable for the problem). Do not mention you using $$ or %% commands as their are deleted out of your response and replaced by latex or a graph."
-                "Note that in the history you won't see the commands for generating images/graphs, but that doesnt mean you dont have to use the command!"
+                "Note that in the history you won't see the commands for generating images/graphs, but that doesnt mean you dont have to use the command! Always put the command at the end of your sentence, and do not tell the user it exists (i will generate that for you: %%x squared%%"
             )
         }
 
