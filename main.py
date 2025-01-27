@@ -97,7 +97,7 @@ def generate_and_display_plot(function_string):
         Use 1000 data points, make it look clean, find a good ration for the y and x axis so that its clear to read.
         The plot should have a black background and for the axis white lines.
         If you need to generate geometric shapes use a plain background without axi.
-        If asked to also generate geometric shapes. A climogram should have the tempeture a line and the percipitation columns.
+        If asked to also generate geometric shapes. A climogram should have the tempeture a line and the percipitation bars.
         Only generate the code block no additiotangle would be made out of four lines that end at some point and are connectingnal explanation.
         """
         plot_code_response = client.chat.completions.create(
