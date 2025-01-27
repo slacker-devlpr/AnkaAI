@@ -98,7 +98,7 @@ def generate_and_display_plot(function_string):
         The plot should have a black background and for the axis white lines.
         If you need to generate geometric shapes use a plain background without axi.
         If asked to also generate geometric shapes. Make sure that if youre asked to make a climogram for the temp. to be a line and the rain/precipitation to be a bar for each month.
-        Only generate the code block no additiotangle would be made out of four lines that end at some point and are connectingnal explanation.
+        Only generate the code block no additional text.
         """
         plot_code_response = client.chat.completions.create(
             model=st.session_state["openai_model"],
