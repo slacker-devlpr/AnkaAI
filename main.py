@@ -1,4 +1,9 @@
 import streamlit as st
+st.set_page_config(
+    page_title="Anka-AI, artificial intelligence for math",
+    page_icon=r"Anka (1).png"
+)
+
 st.title("Dear Valued Users,")
 st.text("We regret to inform you that Anka AI will be shutting down as we transition from OpenAI to Deepseek which achieves a significant breakthrough in inference speed over previous models.")
 st.text("While this marks the end of an era, it is also the beginning of a fresh chapter with enhanced capabilities and features to better serve your needs. ")
