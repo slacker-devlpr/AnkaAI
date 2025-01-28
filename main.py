@@ -4,6 +4,13 @@ st.set_page_config(
     page_icon=r"Anka (1).png"
 )
 hide_streamlit_style = """
+<style>
+.css-hi6a2p {padding-top: 0rem;}
+</style>
+
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+hide_streamlit_style = """
                 <style>
                 div[data-testid="stToolbar"] {
                 visibility: hidden;
