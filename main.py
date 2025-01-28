@@ -1,7 +1,7 @@
 import streamlit as st
 st.set_page_config(
     page_title="Anka-AI, artificial intelligence for math",
-    page_icon=r"Anka (1).png"
+    page_icon=r"Anka (4).png"
 )
 hide_streamlit_style = """
 <style>
