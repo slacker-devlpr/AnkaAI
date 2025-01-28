@@ -35,6 +35,13 @@ hide_streamlit_style = """
                 </style>
                 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+st.markdown('''
+<style>
+.stApp [data-testid="stToolbar"]{
+    display:none;
+}
+</style>
+''', unsafe_allow_html=True)
 st.title("Dear Valued Users,")
 st.text("We regret to inform you that Anka AI will be shutting down as we transition from OpenAI to Deepseek which achieves a significant breakthrough in inference speed over previous models.")
 st.text("While this marks the end of an era, it is also the beginning of a fresh chapter with enhanced capabilities and features to better serve your needs. ")
